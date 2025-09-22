@@ -7,9 +7,19 @@
         <a th:href="@{/}" class="text-2xl font-bold text-blue-600" th:text="#{main.title}">goorm board</a>
         <nav class="space-x-4 flex items-center">
             <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.posts}">게시판</a>
-            <a th:href="@{/products}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.products}">상품관리</a>
-            <a th:href="@{/categories}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.categories}">카테고리관리</a>
-            <a th:href="@{/suppliers}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.suppliers}">공급업체관리</a>
+
+            <!-- 관리자 메뉴 -->
+            <div sec:authorize="hasRole('ADMIN')" class="contents">
+                <a th:href="@{/admin/products}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.products}">상품관리</a>
+                <a th:href="@{/admin/categories}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.categories}">카테고리관리</a>
+                <a th:href="@{/admin/suppliers}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.suppliers}">공급업체관리</a>
+            </div>
+
+            <!-- 바이어 메뉴 -->
+            <div sec:authorize="hasRole('BUYER')" class="contents">
+                <a th:href="@{/buyer/dashboard}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.buyer.dashboard}">바이어 대시보드</a>
+                <a th:href="@{/buyer/orders}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.buyer.orders}">발주 관리</a>
+            </div>
 
             <!-- 로그인하지 않은 경우 -->
             <div sec:authorize="isAnonymous()" class="space-x-4">
