@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
-@Controller
+//@Controller  // 임시 비활성화 - PostService 없음
 @RequiredArgsConstructor
 public class PostController {
 
