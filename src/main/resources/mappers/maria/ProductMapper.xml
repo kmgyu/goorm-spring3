@@ -50,6 +50,7 @@
         <result property="updatedAt" column="updated_at"/>
         <result property="createdSeq" column="created_seq"/>
         <result property="updatedSeq" column="updated_seq"/>
+        <result property="stock" column="available_stock"/>
     </resultMap>
 
     <!-- 공통 컬럼 -->
@@ -79,7 +80,8 @@
     <sql id="productDtoColumns">
         <include refid="productColumns"/>,
         c.name as category_name,
-        s.name as supplier_name
+        s.name as supplier_name,
+        COALESCE(i.available_stock, 0) as available_stock
     </sql>
 
     <!-- 검색 조건 -->
@@ -268,6 +270,7 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
+        LEFT JOIN inventory i ON p.product_seq = i.product_seq AND i.location = 'MAIN_WAREHOUSE'
         WHERE p.status = 'ACTIVE'
         ORDER BY p.created_at DESC
     </select>

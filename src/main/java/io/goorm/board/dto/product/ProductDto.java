@@ -41,6 +41,9 @@ public class ProductDto {
     private BigDecimal marginAmount;
     private BigDecimal marginRate;
 
+    // 재고 관련 필드
+    private Integer stock;
+
     /**
      * 마진액 계산
      */
