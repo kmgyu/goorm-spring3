@@ -43,12 +43,6 @@ public class User implements UserDetails {
     @Size(min = 2, max = 20, message = "{validation.nickname.size}")
     @Column(nullable = false)
     private String nickname;
-    
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -58,6 +52,16 @@ public class User implements UserDetails {
     @JoinColumn(name = "company_seq")
     private Company company;
 
+    public Long getCompanySeq() {
+        return company != null ? company.getCompanySeq() : null;
+    }
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+    
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
     
@@ -75,7 +79,7 @@ public class User implements UserDetails {
     // UserDetails 구현
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(role.getAuthority()));
     }
     
     @Override

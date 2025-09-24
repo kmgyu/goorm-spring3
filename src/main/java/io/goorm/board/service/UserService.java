@@ -3,12 +3,15 @@ package io.goorm.board.service;
 import io.goorm.board.dto.LoginDto;
 import io.goorm.board.dto.ProfileUpdateDto;
 import io.goorm.board.dto.SignupDto;
+import io.goorm.board.entity.Company;
 import io.goorm.board.entity.User;
 import io.goorm.board.exception.DuplicateEmailException;
 import io.goorm.board.exception.InvalidCredentialsException;
 import io.goorm.board.exception.UserNotFoundException;
+import io.goorm.board.mapper.CompanyMapper;
 import io.goorm.board.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final CompanyMapper companyMapper;
     @Lazy
     private final PasswordEncoder passwordEncoder;
     
@@ -116,21 +120,34 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
     }
+
+    @Transactional(readOnly = true)
+    public User findByIdWithCompany(Long userId) {
+        return userRepository.findByIdWithCompany(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+    }
     
     // UserDetailsService 구현 - Spring Security에서 사용
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         log.debug("Spring Security loadUserByUsername 호출: email={}", email);
-        
-        User user = userRepository.findByEmail(email)
+
+        // 회사 정보를 포함해서 로드 (세션에서 사용할 때 LazyInitializationException 방지)
+        User user = userRepository.findByEmailWithCompany(email)
                 .orElseThrow(() -> {
                     log.warn("Spring Security - 사용자 없음: email={}", email);
                     return new UsernameNotFoundException("User not found: " + email);
                 });
-        
-        log.debug("Spring Security - 사용자 로드 성공: email={}, authorities={}", 
-                email, user.getAuthorities());
+
+        log.debug("Spring Security - 사용자 로드 성공: email={}, authorities={}, companySeq={}",
+                email, user.getAuthorities(), user.getCompanySeq());
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Company> findAllCompanies() {
+        log.debug("모든 회사 조회");
+        return companyMapper.findAllOrderByCompanyName();
     }
 }
