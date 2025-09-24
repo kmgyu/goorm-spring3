@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.goorm.board.mapper.InventoryMapper">
+
+    <!-- 재고 결과 맵 -->
+    <resultMap id="inventoryResultMap" type="io.goorm.board.entity.Inventory">
+        <id property="inventorySeq" column="inventory_seq"/>
+        <result property="productSeq" column="product_seq"/>
+        <result property="location" column="location"/>
+        <result property="currentStock" column="current_stock"/>
+        <result property="reservedStock" column="reserved_stock"/>
+        <result property="availableStock" column="available_stock"/>
+        <result property="minStockLevel" column="min_stock_level"/>
+        <result property="maxStockLevel" column="max_stock_level"/>
+        <result property="reorderPoint" column="reorder_point"/>
+        <result property="lastStockCheck" column="last_stock_check"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="createdSeq" column="created_seq"/>
+        <result property="updatedSeq" column="updated_seq"/>
+    </resultMap>
+
+    <!-- 상품별 재고 조회 -->
+    <select id="findByProductSeq" parameterType="long" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE product_seq = #{productSeq}
+        AND location = 'MAIN_WAREHOUSE'
+        LIMIT 1
+    </select>
+
+    <!-- 상품별 재고 조회 (위치별) -->
+    <select id="findByProductSeqAndLocation" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE product_seq = #{productSeq}
+        AND location = #{location}
+        LIMIT 1
+    </select>
+
+    <!-- 여러 상품의 재고 일괄 조회 -->
+    <select id="findByProductSeqs" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE product_seq IN
+        <foreach collection="productSeqs" item="productSeq" open="(" separator="," close=")">
+            #{productSeq}
+        </foreach>
+        AND location = 'MAIN_WAREHOUSE'
+        ORDER BY product_seq
+    </select>
+
+    <!-- 위치별 전체 재고 조회 -->
+    <select id="findByLocation" parameterType="string" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE location = #{location}
+        ORDER BY product_seq
+    </select>
+
+    <!-- 재고 부족 상품 조회 -->
+    <select id="findLowStockItems" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE available_stock &lt;= min_stock_level
+        AND min_stock_level > 0
+        ORDER BY available_stock ASC
+    </select>
+
+    <!-- 품절 상품 조회 -->
+    <select id="findOutOfStockItems" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE available_stock &lt;= 0
+        ORDER BY product_seq
+    </select>
+
+    <!-- 발주 필요 상품 조회 -->
+    <select id="findReorderItems" resultMap="inventoryResultMap">
+        SELECT *
+        FROM inventory
+        WHERE available_stock &lt;= reorder_point
+        AND reorder_point > 0
+        ORDER BY available_stock ASC
+    </select>
+
+    <!-- 재고 수량 업데이트 -->
+    <update id="updateStock">
+        UPDATE inventory
+        SET current_stock = #{currentStock},
+            reserved_stock = #{reservedStock},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE inventory_seq = #{inventorySeq}
+    </update>
+
+    <!-- 재고 예약 (주문 시) -->
+    <update id="reserveStock">
+        UPDATE inventory
+        SET reserved_stock = reserved_stock + #{quantity},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE product_seq = #{productSeq}
+        AND location = 'MAIN_WAREHOUSE'
+        AND available_stock >= #{quantity}
+    </update>
+
+    <!-- 재고 예약 해제 (주문 취소 시) -->
+    <update id="releaseReservedStock">
+        UPDATE inventory
+        SET reserved_stock = GREATEST(0, reserved_stock - #{quantity}),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE product_seq = #{productSeq}
+        AND location = 'MAIN_WAREHOUSE'
+    </update>
+
+    <!-- 재고 소모 처리 (배송 완료 시) -->
+    <update id="consumeStock">
+        UPDATE inventory
+        SET current_stock = current_stock - #{quantity},
+            reserved_stock = GREATEST(0, reserved_stock - #{quantity}),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE product_seq = #{productSeq}
+        AND location = 'MAIN_WAREHOUSE'
+        AND current_stock >= #{quantity}
+    </update>
+
+    <!-- 재고 차감 (주문 승인 시) -->
+    <update id="decreaseStock">
+        UPDATE inventory
+        SET current_stock = current_stock - #{quantity},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE product_seq = #{productSeq}
+        AND location = 'MAIN_WAREHOUSE'
+        AND current_stock >= #{quantity}
+    </update>
+
+</mapper>

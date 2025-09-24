@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.goorm.board.mapper.OrderSummaryMonthlyMapper">
+
+    <!-- 월별 발주 집계 ResultMap -->
+    <resultMap id="orderSummaryMonthlyResultMap" type="io.goorm.board.entity.OrderSummaryMonthly">
+        <id property="summarySeq" column="summary_seq"/>
+        <result property="companySeq" column="company_seq"/>
+        <result property="summaryYear" column="summary_year"/>
+        <result property="summaryMonth" column="summary_month"/>
+        <result property="orderCount" column="order_count"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="discountAmount" column="discount_amount"/>
+        <result property="finalAmount" column="final_amount"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <!-- 조인 필드 -->
+        <result property="companyName" column="company_name"/>
+    </resultMap>
+
+    <!-- 공통 조인 구문 -->
+    <sql id="joinTables">
+        LEFT JOIN companies c ON osm.company_seq = c.company_seq
+    </sql>
+
+    <!-- 공통 select 컬럼 -->
+    <sql id="selectColumns">
+        osm.summary_seq, osm.company_seq, osm.summary_year, osm.summary_month,
+        osm.order_count, osm.total_amount, osm.discount_amount, osm.final_amount,
+        osm.created_at, osm.updated_at,
+        c.company_name
+    </sql>
+
+    <!-- 월별 집계 등록 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.OrderSummaryMonthly" useGeneratedKeys="true" keyProperty="summarySeq">
+        INSERT INTO order_summary_monthly (
+            company_seq, summary_year, summary_month, order_count,
+            total_amount, discount_amount, final_amount
+        ) VALUES (
+            #{companySeq}, #{summaryYear}, #{summaryMonth}, #{orderCount},
+            #{totalAmount}, #{discountAmount}, #{finalAmount}
+        )
+    </insert>
+
+    <!-- 월별 집계 수정 -->
+    <update id="update" parameterType="io.goorm.board.entity.OrderSummaryMonthly">
+        UPDATE order_summary_monthly SET
+            order_count = #{orderCount},
+            total_amount = #{totalAmount},
+            discount_amount = #{discountAmount},
+            final_amount = #{finalAmount},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE summary_seq = #{summarySeq}
+    </update>
+
+    <!-- 회사별 전년도 총 발주액 조회 -->
+    <select id="findPreviousYearTotalAmount" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(final_amount), 0)
+        FROM order_summary_monthly
+        WHERE company_seq = #{companySeq}
+          AND summary_year = #{year}
+    </select>
+
+    <!-- 회사별 월별 집계 조회 -->
+    <select id="findByCompanySeq" resultMap="orderSummaryMonthlyResultMap">
+        SELECT <include refid="selectColumns"/>
+        FROM order_summary_monthly osm
+        <include refid="joinTables"/>
+        WHERE osm.company_seq = #{companySeq}
+          AND osm.summary_year = #{year}
+        ORDER BY osm.summary_month
+    </select>
+
+    <!-- 전체 월별 집계 조회 -->
+    <select id="findAll" resultMap="orderSummaryMonthlyResultMap">
+        SELECT <include refid="selectColumns"/>
+        FROM order_summary_monthly osm
+        <include refid="joinTables"/>
+        WHERE osm.summary_year = #{year}
+        ORDER BY osm.company_seq, osm.summary_month
+    </select>
+
+</mapper>
