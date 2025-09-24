@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.goorm.board.mapper.CompanyDiscountHistoryMapper">
+
+    <!-- 회사별 할인율 이력 ResultMap -->
+    <resultMap id="companyDiscountHistoryResultMap" type="io.goorm.board.entity.CompanyDiscountHistory">
+        <id property="historySeq" column="history_seq"/>
+        <result property="companySeq" column="company_seq"/>
+        <result property="applyYear" column="apply_year"/>
+        <result property="previousYearAmount" column="previous_year_amount"/>
+        <result property="discountRate" column="discount_rate"/>
+        <result property="effectiveFrom" column="effective_from"/>
+        <result property="effectiveTo" column="effective_to"/>
+        <result property="reason" column="reason"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdAt" column="created_at"/>
+        <!-- 조인 필드 -->
+        <result property="companyName" column="company_name"/>
+    </resultMap>
+
+    <!-- 공통 조인 구문 -->
+    <sql id="joinTables">
+        LEFT JOIN companies c ON cdh.company_seq = c.company_seq
+    </sql>
+
+    <!-- 공통 select 컬럼 -->
+    <sql id="selectColumns">
+        cdh.history_seq, cdh.company_seq, cdh.apply_year, cdh.previous_year_amount,
+        cdh.discount_rate, cdh.effective_from, cdh.effective_to, cdh.reason, cdh.created_by, cdh.created_at,
+        c.company_name
+    </sql>
+
+    <!-- 할인율 이력 등록 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.CompanyDiscountHistory" useGeneratedKeys="true" keyProperty="historySeq">
+        INSERT INTO company_discount_history (
+            company_seq, apply_year, previous_year_amount, discount_rate,
+            effective_from, effective_to, reason, created_by
+        ) VALUES (
+            #{companySeq}, #{applyYear}, #{previousYearAmount}, #{discountRate},
+            #{effectiveFrom}, #{effectiveTo}, #{reason}, #{createdBy}
+        )
+    </insert>
+
+    <!-- 회사별 현재 할인율 조회 -->
+    <select id="findCurrentDiscountRate" resultType="java.math.BigDecimal">
+        SELECT discount_rate
+        FROM company_discount_history
+        WHERE company_seq = #{companySeq}
+          AND #{currentDate} BETWEEN effective_from AND effective_to
+        ORDER BY effective_from DESC
+        LIMIT 1
+    </select>
+
+    <!-- 회사별 할인율 이력 조회 -->
+    <select id="findByCompanySeq" parameterType="long" resultMap="companyDiscountHistoryResultMap">
+        SELECT <include refid="selectColumns"/>
+        FROM company_discount_history cdh
+        <include refid="joinTables"/>
+        WHERE cdh.company_seq = #{companySeq}
+        ORDER BY cdh.effective_from DESC
+    </select>
+
+    <!-- 전체 할인율 이력 조회 -->
+    <select id="findAll" resultMap="companyDiscountHistoryResultMap">
+        SELECT <include refid="selectColumns"/>
+        FROM company_discount_history cdh
+        <include refid="joinTables"/>
+        ORDER BY cdh.apply_year DESC, cdh.effective_from DESC
+    </select>
+
+</mapper>
