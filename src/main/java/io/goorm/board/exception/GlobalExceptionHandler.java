@@ -301,6 +301,110 @@ public class GlobalExceptionHandler {
         return "supplier.service.activate.failed"; // 기본값
     }
 
+    /**
+     * InvalidUserRoleException 처리
+     */
+    @ExceptionHandler(InvalidUserRoleException.class)
+    public String handleInvalidUserRoleException(InvalidUserRoleException e, Model model) {
+        log.warn("Invalid user role access attempt");
+
+        String errorMessage = messageSource.getMessage(
+            "error.user.role.invalid",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/dashboard";
+    }
+
+    /**
+     * CompanyNotFoundException 처리
+     */
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public String handleCompanyNotFoundException(CompanyNotFoundException e, Model model) {
+        log.warn("Company information not found");
+
+        String errorMessage = messageSource.getMessage(
+            "error.company.notfound",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/dashboard";
+    }
+
+    /**
+     * OrderNotFoundException 처리
+     */
+    @ExceptionHandler(OrderNotFoundException.class)
+    public String handleOrderNotFoundException(OrderNotFoundException e, Model model) {
+        log.warn("Order not found");
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.notfound",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        return "error/404";
+    }
+
+    /**
+     * OrderItemsNotSelectedException 처리
+     */
+    @ExceptionHandler(OrderItemsNotSelectedException.class)
+    public String handleOrderItemsNotSelectedException(OrderItemsNotSelectedException e, Model model) {
+        log.warn("Order items not selected");
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.items.notselected",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/orders/form";
+    }
+
+    /**
+     * InsufficientStockException 처리
+     */
+    @ExceptionHandler(InsufficientStockException.class)
+    public String handleInsufficientStockException(InsufficientStockException e, Model model) {
+        log.warn("Insufficient stock: {}", e.getMessage());
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.insufficient.stock",
+            null,
+            e.getMessage(),
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/orders/form";
+    }
+
+    /**
+     * OrderProcessingException 처리
+     */
+    @ExceptionHandler(OrderProcessingException.class)
+    public String handleOrderProcessingException(OrderProcessingException e, Model model) {
+        log.error("Order processing error: {}", e.getMessage());
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.processing",
+            null,
+            e.getMessage(),
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/orders/form";
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleGeneralException(Exception e, Model model) {
         log.error("Unexpected error occurred", e);
