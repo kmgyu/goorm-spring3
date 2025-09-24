@@ -30,7 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Slf4j
 @Controller
-@RequestMapping("/suppliers")
+@RequestMapping("/admin/suppliers")
 @RequiredArgsConstructor
 public class SupplierController {
 

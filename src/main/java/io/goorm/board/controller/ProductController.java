@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Slf4j
 @Controller
-@RequestMapping("/products")
+@RequestMapping("/admin/products")
 @RequiredArgsConstructor
 public class ProductController {
 
