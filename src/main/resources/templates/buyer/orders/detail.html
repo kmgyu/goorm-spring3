@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>주문 상세</title>
+</head>
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900">주문 상세 정보</h1>
+                <a th:href="@{/buyer/orders}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">목록으로</a>
+            </div>
+        </div>
+
+        <!-- 주문 기본 정보 -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">주문 정보</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">주문번호:</dt>
+                            <dd class="text-gray-900" th:text="${order.orderNumber}"></dd>
+                        </div>
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">주문일:</dt>
+                            <dd class="text-gray-900" th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></dd>
+                        </div>
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">상태:</dt>
+                            <dd>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" th:if="${order.status.name() == 'APPROVED'}">승인됨</span>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800" th:if="${order.status.name() == 'PENDING'}">대기중</span>
+                            </dd>
+                        </div>
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">배송상태:</dt>
+                            <dd>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" th:if="${order.deliveryStatus != null and order.deliveryStatus.name() == 'ORDER_COMPLETED'}">주문완료</span>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" th:if="${order.deliveryStatus != null and order.deliveryStatus.name() == 'DELIVERY_COMPLETED'}">배송완료</span>
+                            </dd>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">총 금액:</dt>
+                            <dd class="text-gray-900" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + '원'"></dd>
+                        </div>
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">할인율:</dt>
+                            <dd class="text-gray-900" th:text="${order.discountRate} + '%'"></dd>
+                        </div>
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">할인 금액:</dt>
+                            <dd class="text-red-600" th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + '원'"></dd>
+                        </div>
+                        <div class="flex">
+                            <dt class="w-24 font-medium text-gray-700">최종 금액:</dt>
+                            <dd class="font-bold text-blue-600" th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + '원'"></dd>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${order.notes}" class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="font-medium text-gray-700 mb-2">비고:</h3>
+                    <p class="text-gray-900" th:text="${order.notes}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주문 상품 목록 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">주문 상품 목록</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상품명</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">단가</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수량</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소계</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="item : ${order.orderItems}" class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${item.productName}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${item.categoryName}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '원'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${item.quantity} + '개'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 0, 'COMMA', 0, 'POINT')} + '원'"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
