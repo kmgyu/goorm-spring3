@@ -1,13 +1,9 @@
 package io.goorm.board.service.discount;
 
-import io.goorm.board.entity.CompanyDiscountHistory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * 할인율 계산을 담당하는 순수 자바 클래스
@@ -16,21 +12,6 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class DiscountCalculator {
-
-    /**
-     * 현재 유효한 할인율 계산
-     */
-    public BigDecimal calculateCurrentDiscountRate(List<CompanyDiscountHistory> discountHistories, LocalDate currentDate) {
-        if (discountHistories == null || discountHistories.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-
-        return discountHistories.stream()
-                .filter(history -> isValidPeriod(history, currentDate))
-                .map(CompanyDiscountHistory::getDiscountRate)
-                .findFirst()
-                .orElse(BigDecimal.ZERO);
-    }
 
     /**
      * 주문 금액에 할인율 적용
@@ -125,17 +106,6 @@ public class DiscountCalculator {
         }
     }
 
-    /**
-     * 할인 이력이 현재 유효한 기간인지 확인
-     */
-    private boolean isValidPeriod(CompanyDiscountHistory history, LocalDate currentDate) {
-        if (history.getEffectiveFrom() == null || history.getEffectiveTo() == null) {
-            return false;
-        }
-
-        return !currentDate.isBefore(history.getEffectiveFrom())
-            && !currentDate.isAfter(history.getEffectiveTo());
-    }
 
     /**
      * 할인율 등급 enum

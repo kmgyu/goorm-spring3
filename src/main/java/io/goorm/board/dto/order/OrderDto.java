@@ -3,12 +3,14 @@ package io.goorm.board.dto.order;
 import io.goorm.board.entity.Order;
 import io.goorm.board.enums.DeliveryStatus;
 import io.goorm.board.enums.OrderStatus;
+import io.goorm.board.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,6 +39,17 @@ public class OrderDto {
     private String notes;
     private LocalDateTime createdAt;
 
+    // 결제 및 인보이스 관련 필드
+    private PaymentStatus paymentStatus;
+    private LocalDate paymentDueDate;
+    private LocalDateTime paymentCompletedDate;
+    private LocalDateTime invoiceGeneratedAt;
+    private Long paymentCompletedBySeq;
+    private String paymentCompletedBy;
+    private Long deliveryCompletedBySeq;
+    private String deliveryCompletedBy;
+    private LocalDateTime deliveryCompletedAt;
+
     // 조인 정보
     private String companyName;
     private String userName;
@@ -64,6 +77,15 @@ public class OrderDto {
                 .approvedAt(order.getApprovedAt())
                 .notes(order.getNotes())
                 .createdAt(order.getCreatedAt())
+                .paymentStatus(order.getPaymentStatus())
+                .paymentDueDate(order.getPaymentDueDate())
+                .paymentCompletedDate(order.getPaymentCompletedDate())
+                .invoiceGeneratedAt(order.getInvoiceGeneratedAt())
+                .paymentCompletedBySeq(order.getPaymentCompletedBySeq())
+                .paymentCompletedBy(order.getPaymentCompletedBy())
+                .deliveryCompletedBySeq(order.getDeliveryCompletedBySeq())
+                .deliveryCompletedBy(order.getDeliveryCompletedBy())
+                .deliveryCompletedAt(order.getDeliveryCompletedAt())
                 .companyName(order.getCompanyName())
                 .userName(order.getUserName())
                 .userEmail(order.getUserEmail())

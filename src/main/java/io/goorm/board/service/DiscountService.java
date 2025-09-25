@@ -1,7 +1,6 @@
 package io.goorm.board.service;
 
-import io.goorm.board.entity.CompanyDiscountHistory;
-import io.goorm.board.mapper.CompanyDiscountHistoryMapper;
+import io.goorm.board.mapper.OrderMapper;
 import io.goorm.board.mapper.OrderSummaryMonthlyMapper;
 import io.goorm.board.service.discount.DiscountCalculator;
 import lombok.RequiredArgsConstructor;
@@ -10,23 +9,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DiscountService {
 
-    private final CompanyDiscountHistoryMapper discountHistoryMapper;
+    private final OrderMapper orderMapper;
     private final OrderSummaryMonthlyMapper summaryMapper;
     private final DiscountCalculator discountCalculator;
 
     /**
-     * 회사별 현재 적용 할인율 계산
+     * 회사별 현재 적용 할인율 계산 (전년도 구매액 기준)
      */
     public BigDecimal calculateDiscountRate(Long companySeq) {
-        List<CompanyDiscountHistory> histories = discountHistoryMapper.findByCompanySeq(companySeq);
-        return discountCalculator.calculateCurrentDiscountRate(histories, LocalDate.now());
+        // 전년도 구매액을 기준으로 할인율 계산
+        String lastYear = String.valueOf(LocalDate.now().getYear() - 1);
+        BigDecimal previousYearAmount = getPreviousYearAmount(companySeq, lastYear);
+
+        DiscountCalculator.DiscountGrade grade = discountCalculator.evaluateDiscountGrade(previousYearAmount);
+        return discountCalculator.getRecommendedDiscountRate(grade);
     }
 
     /**

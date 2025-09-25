@@ -1,16 +1,15 @@
 package io.goorm.board.enums;
 
 /**
- * 주문 상태 Enum
+ * 입금 상태 열거형
  */
-public enum OrderStatus {
-    PENDING("대기중"),
-    APPROVED("승인완료"),
-    COMPLETED("배송완료");
+public enum PaymentStatus {
+    PENDING("입금대기"),
+    COMPLETED("입금완료");
 
     private final String displayName;
 
-    OrderStatus(String displayName) {
+    PaymentStatus(String displayName) {
         this.displayName = displayName;
     }
 

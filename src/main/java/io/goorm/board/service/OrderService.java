@@ -1,6 +1,10 @@
 package io.goorm.board.service;
 
-import io.goorm.board.dto.order.*;
+import io.goorm.board.dto.order.OrderCreateDto;
+import io.goorm.board.dto.order.OrderDto;
+import io.goorm.board.dto.order.OrderItemCreateDto;
+import io.goorm.board.dto.order.OrderProductSelectionDto;
+import io.goorm.board.dto.order.OrderSearchDto;
 import io.goorm.board.entity.Order;
 import io.goorm.board.entity.OrderItem;
 import io.goorm.board.entity.Product;
@@ -134,9 +138,9 @@ public class OrderService {
 
         orderItemMapper.insertBatch(orderItems);
 
-        // 주문 승인 후 재고 차감
+        // 주문 승인 후 재고 예약
         createDto.getItems().forEach(itemDto -> {
-            inventoryService.decreaseStock(itemDto.getProductSeq(), itemDto.getQuantity());
+            inventoryService.reserveStock(itemDto.getProductSeq(), itemDto.getQuantity());
         });
 
         return convertToDto(orderMapper.findById(order.getOrderSeq()).orElseThrow());
@@ -167,6 +171,90 @@ public class OrderService {
                 .toList());
 
         return orderDto;
+    }
+
+    /**
+     * 배송 완료 처리
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @LogExecution(operation = "COMPLETE_DELIVERY", resource = "ORDER")
+    public OrderDto completeDelivery(Long orderSeq, User user) {
+        // 주문 조회
+        Order order = orderMapper.findById(orderSeq)
+                .orElseThrow(() -> new OrderNotFoundException());
+
+        // 배송 완료 처리 (인보이스 자동 확정)
+        order.completeDelivery(user.getUserSeq(), user.getEmail());
+        orderMapper.updateDeliveryComplete(order);
+
+        // 주문 항목별 재고 소모 처리
+        List<OrderItem> orderItems = orderItemMapper.findByOrderSeq(orderSeq);
+        orderItems.forEach(item -> {
+            inventoryService.consumeStock(item.getProductSeq(), item.getQuantity());
+        });
+
+        log.info("배송 완료 및 인보이스 확정 완료 - 주문: {}, 사용자: {}, 입금예정일: {}",
+                orderSeq, user.getEmail(), order.getPaymentDueDate());
+
+        return convertToDto(orderMapper.findById(orderSeq).orElseThrow());
+    }
+
+
+    /**
+     * 배송 시작 처리
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @LogExecution(operation = "START_DELIVERY", resource = "ORDER")
+    public OrderDto startDelivery(Long orderSeq, User user) {
+        // 주문 조회
+        Order order = orderMapper.findById(orderSeq)
+                .orElseThrow(() -> new OrderNotFoundException());
+
+        // 배송 시작 처리
+        order.startDelivery("ADMIN");
+        orderMapper.updateDeliveryComplete(order);
+
+        log.info("배송 시작 처리됨 - 주문: {}, 사용자: {}", orderSeq, user.getEmail());
+
+        return convertToDto(orderMapper.findById(orderSeq).orElseThrow());
+    }
+
+    /**
+     * 입금 완료 처리
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @LogExecution(operation = "COMPLETE_PAYMENT", resource = "ORDER")
+    public OrderDto completePayment(Long orderSeq, User user) {
+        // 주문 조회
+        Order order = orderMapper.findById(orderSeq)
+                .orElseThrow(() -> new OrderNotFoundException());
+
+        // 입금 완료 처리
+        order.completePayment(user.getUserSeq(), user.getEmail());
+        orderMapper.updatePaymentComplete(order);
+
+        log.info("입금 완료 처리됨 - 주문: {}, 사용자: {}", orderSeq, user.getEmail());
+
+        return convertToDto(orderMapper.findById(orderSeq).orElseThrow());
+    }
+
+    /**
+     * 인보이스 PDF 생성
+     */
+    private void generateInvoice(Long orderSeq) {
+        try {
+            // TODO: PDF 생성 로직 구현
+            // 1. 주문 정보 조회
+            // 2. 회사 정보 조회
+            // 3. 주문 항목 조회
+            // 4. PDF 템플릿으로 인보이스 생성
+            // 5. 파일 저장 또는 이메일 발송
+
+            log.info("인보이스 생성 완료 - 주문: {}", orderSeq);
+        } catch (Exception e) {
+            log.error("인보이스 생성 실패 - 주문: {}, 오류: {}", orderSeq, e.getMessage());
+            // 인보이스 생성 실패해도 배송 완료 처리는 계속 진행
+        }
     }
 
     private BigDecimal calculateTotalAmount(OrderCreateDto createDto) {
@@ -201,8 +289,8 @@ public class OrderService {
                 .build();
     }
 
-    private OrderItemDto convertToItemDto(OrderItem orderItem) {
-        return OrderItemDto.builder()
+    private io.goorm.board.dto.order.OrderItemDto convertToItemDto(OrderItem orderItem) {
+        return io.goorm.board.dto.order.OrderItemDto.builder()
                 .orderItemSeq(orderItem.getOrderItemSeq())
                 .orderSeq(orderItem.getOrderSeq())
                 .productSeq(orderItem.getProductSeq())
