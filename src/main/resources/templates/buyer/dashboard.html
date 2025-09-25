@@ -40,7 +40,7 @@
 
         <!-- Dashboard Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- 발주 관리 Card -->
+            <!-- 주문 관리 Card -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6">
                     <div class="flex items-center">
@@ -51,16 +51,16 @@
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">발주 관리</dt>
-                                <dd class="text-lg font-medium text-gray-900">발주 신청 및 내역</dd>
+                                <dt class="text-sm font-medium text-gray-500 truncate">주문 관리</dt>
+                                <dd class="text-lg font-medium text-gray-900">주문 신청 및 내역</dd>
                             </dl>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <p class="text-sm text-gray-600">발주 신청 및 내역을 확인할 수 있습니다.</p>
+                        <p class="text-sm text-gray-600">주문 신청 및 내역을 확인할 수 있습니다.</p>
                         <div class="mt-3">
                             <a th:href="@{/buyer/orders}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                발주 관리
+                                주문 관리
                             </a>
                         </div>
                     </div>
@@ -113,15 +113,15 @@
                         </div>
                         <div class="ml-5 w-0 flex-1">
                             <dl>
-                                <dt class="text-sm font-medium text-gray-500 truncate">발주 관리</dt>
-                                <dd class="text-lg font-medium text-gray-900">신규 발주</dd>
+                                <dt class="text-sm font-medium text-gray-500 truncate">주문 관리</dt>
+                                <dd class="text-lg font-medium text-gray-900">신규 주문</dd>
                             </dl>
                         </div>
                     </div>
                     <div class="mt-4">
                         <p class="text-sm text-gray-600">
-                            신규 발주를 등록하고<br>
-                            발주 내역을 확인하세요.
+                            신규 주문를 등록하고<br>
+                            주문 내역을 확인하세요.
                         </p>
                     </div>
                 </div>
@@ -137,17 +137,17 @@
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">발주 시스템 준비 완료</h3>
-                        <p class="mt-1 text-sm text-gray-500">이제 발주를 등록하고 관리할 수 있습니다.</p>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">주문 시스템 준비 완료</h3>
+                        <p class="mt-1 text-sm text-gray-500">이제 주문를 등록하고 관리할 수 있습니다.</p>
                         <div class="mt-6">
                             <a th:href="@{/buyer/orders/create}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-3">
                                 <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
                                 </svg>
-                                새 발주 등록
+                                새 주문 등록
                             </a>
                             <a th:href="@{/buyer/orders}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                발주 목록 보기
+                                주문 목록 보기
                             </a>
                         </div>
                     </div>

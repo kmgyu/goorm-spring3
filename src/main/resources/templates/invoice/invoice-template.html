@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>세금계산서 - [[${order.orderNumber}]]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body { print-color-adjust: exact; }
+        }
+        .invoice-header {
+            border: 2px solid #1f2937;
+        }
+        .invoice-table th, .invoice-table td {
+            border: 1px solid #374151;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body class="bg-white p-8 font-sans">
+    <!-- 인보이스 컨테이너 -->
+    <div class="max-w-4xl mx-auto bg-white border-2 border-gray-800">
+
+        <!-- 헤더 영역 -->
+        <div class="invoice-header bg-gray-50 p-6">
+            <div class="flex justify-between items-center">
+                <!-- 좌측: 회사 정보 -->
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">세금계산서</h1>
+                    <p class="text-lg text-gray-600 mt-2">TAX INVOICE</p>
+                </div>
+
+                <!-- 우측: 인보이스 정보 -->
+                <div class="text-right">
+                    <div class="bg-gray-800 text-white px-4 py-2 rounded">
+                        <p class="text-sm">Invoice No.</p>
+                        <p class="text-xl font-bold" th:text="${invoiceId}">INV-20251224-001</p>
+                    </div>
+                    <p class="text-sm mt-2 text-gray-600">발행일시: <span th:text="${#temporals.format(invoiceGeneratedAt, 'yyyy-MM-dd HH:mm:ss')}">2025-12-24 14:30:52</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 회사 정보 영역 -->
+        <div class="grid grid-cols-2 gap-8 p-6 border-b border-gray-300">
+            <!-- 공급자 정보 -->
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b border-gray-300 pb-2">공급자 (From)</h3>
+                <div class="space-y-1">
+                    <p><span class="font-medium">상호:</span> (주)구름컴퍼니</p>
+                    <p><span class="font-medium">대표자:</span> 홍길동</p>
+                    <p><span class="font-medium">사업자번호:</span> 123-45-67890</p>
+                    <p><span class="font-medium">주소:</span> 서울시 강남구 테헤란로 123</p>
+                    <p><span class="font-medium">전화:</span> 02-1234-5678</p>
+                </div>
+            </div>
+
+            <!-- 구매자 정보 -->
+            <div>
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b border-gray-300 pb-2">구매자 (To)</h3>
+                <div class="space-y-1">
+                    <p><span class="font-medium">상호:</span> <span th:text="${order.companyName}">현대자동차</span></p>
+                    <p><span class="font-medium">담당자:</span> <span th:text="${order.userName}">구매자3</span></p>
+                    <p><span class="font-medium">이메일:</span> <span th:text="${order.userEmail}">buyer3@hyundai.com</span></p>
+                    <p><span class="font-medium">주문번호:</span> <span th:text="${order.orderNumber}">20251224001</span></p>
+                    <p><span class="font-medium">주문일:</span> <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}">2025-12-24</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 주문 상세 내역 -->
+        <div class="p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">주문 상세 내역</h3>
+
+            <table class="w-full invoice-table">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="text-center w-12">No.</th>
+                        <th class="text-left">상품명</th>
+                        <th class="text-left w-32">카테고리</th>
+                        <th class="text-center w-20">수량</th>
+                        <th class="text-right w-32">단가</th>
+                        <th class="text-right w-32">금액</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, iterStat : ${order.orderItems}">
+                        <td class="text-center" th:text="${iterStat.count}">1</td>
+                        <td th:text="${item.productName}">노트북 컴퓨터</td>
+                        <td th:text="${item.categoryName}">전자제품</td>
+                        <td class="text-center" th:text="${item.quantity}">2</td>
+                        <td class="text-right" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + '원'">1,500,000원</td>
+                        <td class="text-right" th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity, 0, 'COMMA', 0, 'POINT')} + '원'">3,000,000원</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 금액 요약 -->
+        <div class="p-6 border-t border-gray-300">
+            <div class="flex justify-end">
+                <div class="w-80">
+                    <div class="bg-gray-50 p-4 rounded">
+                        <div class="flex justify-between py-2">
+                            <span class="font-medium">소계:</span>
+                            <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + '원'">3,000,000원</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="font-medium">할인율:</span>
+                            <span th:text="${order.discountRate} + '%'">5%</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="font-medium">할인금액:</span>
+                            <span class="text-red-600" th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + '원'">-150,000원</span>
+                        </div>
+                        <div class="flex justify-between py-3 border-t border-gray-300 text-lg font-bold">
+                            <span>합계금액:</span>
+                            <span class="text-blue-600" th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + '원'">2,850,000원</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제 정보 -->
+        <div class="p-6 border-t border-gray-300 bg-yellow-50">
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2">결제 정보</h4>
+                    <p><span class="font-medium">입금예정일:</span> <span class="text-red-600 font-bold" th:text="${#temporals.format(paymentDueDate, 'yyyy년 MM월 dd일')}">2025년 01월 31일</span></p>
+                    <p><span class="font-medium">결제상태:</span>
+                        <span class="px-2 py-1 rounded text-sm" >입금대기</span>
+                    </p>
+                </div>
+
+                <!-- QR 코드 영역 -->
+                <div class="text-center">
+                    <p class="text-sm text-gray-600 mb-2">진위확인 QR코드</p>
+                    <div class="inline-block p-2 border border-gray-300">
+                        <!-- QR 코드는 서버에서 생성하여 Base64로 삽입 -->
+                        <img th:src="'data:image/png;base64,' + ${qrCodeBase64}"
+                             alt="QR Code"
+                             class="w-20 h-20"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="p-6 border-t border-gray-300 bg-gray-800 text-white text-center">
+            <p class="text-sm">본 세금계산서는 전자문서로 발행되었으며, 국세청 승인을 받은 정당한 계산서입니다.</p>
+            <p class="text-xs mt-2 text-gray-300">
+                발행시각: <span th:text="${#temporals.format(currentDateTime, 'yyyy년 MM월 dd일 HH시 mm분 ss초')}">2025년 12월 24일 14시 30분 52초</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- 출력용 스타일 -->
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</body>
+</html>

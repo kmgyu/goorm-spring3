@@ -148,6 +148,14 @@
                                             class="text-green-600 hover:text-green-900"
                                             onclick="return confirm('배송완료 처리하시겠습니까?')">배송완료</button>
                                 </form>
+                                <!-- 겶제처리 버튼 (관리자만) -->
+                                <form sec:authorize="hasRole('ADMIN')" th:if="${order.deliveryStatus.name() == 'DELIVERY_COMPLETED'}"
+                                      th:action="@{/admin/orders/{seq}/complete-payment(seq=${order.orderSeq})}"
+                                      method="post" class="inline">
+                                    <button type="submit"
+                                            class="text-green-600 hover:text-green-900"
+                                            onclick="return confirm('결제완료 처리하시겠습니까?')">결제완료</button>
+                                </form>
                             </td>
                         </tr>
 
