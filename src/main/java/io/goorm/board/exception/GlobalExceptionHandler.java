@@ -17,6 +17,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,7 @@ public class GlobalExceptionHandler {
      * 게시글을 찾을 수 없을 때 404 페이지로 이동
      */
     @ExceptionHandler(PostNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handlePostNotFoundException(PostNotFoundException e, Model model) {
         log.warn("Post not found: {}", e.getMessage());
 
@@ -58,6 +60,7 @@ public class GlobalExceptionHandler {
      * 이메일 중복 시 회원가입 폼으로 리다이렉트
      */
     @ExceptionHandler(DuplicateEmailException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleDuplicateEmailException(DuplicateEmailException e, Model model) {
         log.warn("Duplicate email: {}", e.getMessage());
 
@@ -79,6 +82,7 @@ public class GlobalExceptionHandler {
      * 로그인 실패 시 로그인 폼으로 리다이렉트
      */
     @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleInvalidCredentialsException(InvalidCredentialsException e, Model model) {
         log.warn("Invalid credentials: {}", e.getMessage());
 
@@ -100,6 +104,7 @@ public class GlobalExceptionHandler {
      * 사용자 조회 실패 시 메인 페이지로 리다이렉트
      */
     @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleUserNotFoundException(UserNotFoundException e, Model model) {
         log.warn("User not found: {}", e.getMessage());
 
@@ -120,6 +125,7 @@ public class GlobalExceptionHandler {
      * 권한 없는 접근 시 게시글 상세 페이지로 리다이렉트
      */
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleSpringSecurityAccessDenied(org.springframework.security.access.AccessDeniedException e, Model model, HttpServletRequest request) {
         log.warn("Access denied: {} - {}", request.getRequestURI(), e.getMessage());
 
@@ -140,6 +146,7 @@ public class GlobalExceptionHandler {
      * 인증 필요한 요청 시 로그인 페이지로 리다이렉트
      */
     @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
         log.warn("Authentication required: {} - {}", request.getRequestURI(), e.getMessage());
         
@@ -161,6 +168,7 @@ public class GlobalExceptionHandler {
      * Excel 내보내기 중 발생한 예외를 처리
      */
     @ExceptionHandler(ExcelExportException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<String> handleExcelExportException(ExcelExportException e, HttpServletRequest request) {
         log.error("Excel export error: {} - {}", e.getErrorCode(), e.getMessage(), e);
 
@@ -174,6 +182,7 @@ public class GlobalExceptionHandler {
      * 공급업체를 찾을 수 없을 때 404 페이지로 이동
      */
     @ExceptionHandler(SupplierNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleSupplierNotFoundException(SupplierNotFoundException e, Model model) {
         log.warn("Supplier not found: {}", e.getMessage());
 
@@ -195,6 +204,7 @@ public class GlobalExceptionHandler {
      * 공급업체 유효성 검증 실패시 폼으로 돌아감
      */
     @ExceptionHandler(SupplierValidationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleSupplierValidationException(SupplierValidationException e, Model model, HttpServletRequest request) {
         log.warn("Supplier validation error: {}", e.getMessage());
 
@@ -247,6 +257,7 @@ public class GlobalExceptionHandler {
      * 공급업체 중복 오류시 폼으로 돌아감
      */
     @ExceptionHandler(SupplierDuplicateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleSupplierDuplicateException(SupplierDuplicateException e, Model model, HttpServletRequest request) {
         log.warn("Supplier duplicate error: {}", e.getMessage());
 
@@ -274,6 +285,7 @@ public class GlobalExceptionHandler {
      * 공급업체 상태 변경 실패시 목록으로 돌아감
      */
     @ExceptionHandler(SupplierStateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleSupplierStateException(SupplierStateException e, Model model, HttpServletRequest request) {
         log.warn("Supplier state error: {}", e.getMessage());
 
@@ -305,6 +317,7 @@ public class GlobalExceptionHandler {
      * InvalidUserRoleException 처리
      */
     @ExceptionHandler(InvalidUserRoleException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleInvalidUserRoleException(InvalidUserRoleException e, Model model) {
         log.warn("Invalid user role access attempt");
 
@@ -322,6 +335,7 @@ public class GlobalExceptionHandler {
      * CompanyNotFoundException 처리
      */
     @ExceptionHandler(CompanyNotFoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleCompanyNotFoundException(CompanyNotFoundException e, Model model) {
         log.warn("Company information not found");
 
@@ -339,6 +353,7 @@ public class GlobalExceptionHandler {
      * OrderNotFoundException 처리
      */
     @ExceptionHandler(OrderNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleOrderNotFoundException(OrderNotFoundException e, Model model) {
         log.warn("Order not found");
 
@@ -356,6 +371,7 @@ public class GlobalExceptionHandler {
      * OrderItemsNotSelectedException 처리
      */
     @ExceptionHandler(OrderItemsNotSelectedException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleOrderItemsNotSelectedException(OrderItemsNotSelectedException e, Model model) {
         log.warn("Order items not selected");
 
@@ -373,6 +389,7 @@ public class GlobalExceptionHandler {
      * InsufficientStockException 처리
      */
     @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleInsufficientStockException(InsufficientStockException e, Model model) {
         log.warn("Insufficient stock: {}", e.getMessage());
 
@@ -391,6 +408,7 @@ public class GlobalExceptionHandler {
      * OrderProcessingException 처리
      */
     @ExceptionHandler(OrderProcessingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleOrderProcessingException(OrderProcessingException e, Model model) {
         log.error("Order processing error: {}", e.getMessage());
 
@@ -406,6 +424,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGeneralException(Exception e, Model model) {
         log.error("Unexpected error occurred", e);
 
