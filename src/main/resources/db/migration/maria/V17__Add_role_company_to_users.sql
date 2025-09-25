@@ -28,10 +28,6 @@ PREPARE stmt FROM @company_sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- 기존 사용자를 관리자로 설정 (role 컬럼이 존재할 때만)
-UPDATE users SET role = 'ADMIN' WHERE user_seq <= 2 AND EXISTS (
-    SELECT 1 FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = 'goorm_db'
-    AND TABLE_NAME = 'users'
-    AND COLUMN_NAME = 'role'
-);
+UPDATE users
+SET role = 'ADMIN'
+WHERE user_seq <= 1;
