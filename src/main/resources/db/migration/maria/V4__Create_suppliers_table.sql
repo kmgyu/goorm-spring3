@@ -1,5 +1,5 @@
 -- Create suppliers table (공급업체)
-CREATE TABLE suppliers (
+CREATE TABLE IF NOT EXISTS suppliers (
     supplier_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     contact_person VARCHAR(50),

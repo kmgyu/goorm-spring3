@@ -1,4 +1,5 @@
-delete from products;
+DELETE FROM products;
+ALTER TABLE products AUTO_INCREMENT = 1;
 
 INSERT INTO products (
     code, name, description, category_seq, supplier_seq,

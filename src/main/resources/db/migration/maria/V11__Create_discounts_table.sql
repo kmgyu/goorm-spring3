@@ -1,5 +1,5 @@
 -- Create discounts table (할인)
-CREATE TABLE discounts (
+CREATE TABLE IF NOT EXISTS discounts (
     discount_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,

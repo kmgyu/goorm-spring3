@@ -1,5 +1,5 @@
 -- Create order_items table (주문 상품)
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
     order_item_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_seq BIGINT NOT NULL,
     product_seq BIGINT NOT NULL,

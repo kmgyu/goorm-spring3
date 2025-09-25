@@ -1,4 +1,5 @@
-delete from categories;
+DELETE FROM categories;
+ALTER TABLE categories AUTO_INCREMENT = 1;
 
 -- Insert basic categories data
 

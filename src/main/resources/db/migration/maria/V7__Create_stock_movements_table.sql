@@ -1,5 +1,5 @@
 -- Create stock_movements table (재고 이동 이력)
-CREATE TABLE stock_movements (
+CREATE TABLE IF NOT EXISTS stock_movements (
     stock_movement_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     product_seq BIGINT NOT NULL,
     location VARCHAR(100) NOT NULL,

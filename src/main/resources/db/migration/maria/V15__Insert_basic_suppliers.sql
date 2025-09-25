@@ -1,5 +1,6 @@
 
-delete from suppliers;
+DELETE FROM suppliers;
+ALTER TABLE suppliers AUTO_INCREMENT = 1;
 
 -- Insert basic suppliers data
 INSERT INTO suppliers (name, contact_person, email, phone, address, description, is_active, created_seq, updated_seq) VALUES

@@ -1,5 +1,5 @@
 -- Create discount_rules table (할인 적용 규칙)
-CREATE TABLE discount_rules (
+CREATE TABLE IF NOT EXISTS discount_rules (
     discount_rule_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     discount_seq BIGINT NOT NULL,
     target_type ENUM('CATEGORY', 'PRODUCT', 'CUSTOMER') NOT NULL,

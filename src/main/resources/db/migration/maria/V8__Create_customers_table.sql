@@ -1,5 +1,5 @@
 -- Create customers table (고객)
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
     customer_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     customer_code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,

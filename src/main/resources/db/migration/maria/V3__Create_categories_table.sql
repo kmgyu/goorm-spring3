@@ -1,5 +1,5 @@
 -- Create categories table (상품 카테고리)
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     category_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     description TEXT,

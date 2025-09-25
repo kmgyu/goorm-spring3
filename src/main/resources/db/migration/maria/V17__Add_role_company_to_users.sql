@@ -32,6 +32,6 @@ DEALLOCATE PREPARE stmt;
 UPDATE users SET role = 'ADMIN' WHERE user_seq <= 2 AND EXISTS (
     SELECT 1 FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = 'goorm_db'
-      AND TABLE_NAME = 'users'
-      AND COLUMN_NAME = 'role'
+    AND TABLE_NAME = 'users'
+    AND COLUMN_NAME = 'role'
 );

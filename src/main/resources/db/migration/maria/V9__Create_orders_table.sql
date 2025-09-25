@@ -1,5 +1,5 @@
 -- Create orders table (주문)
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     order_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_number VARCHAR(50) NOT NULL UNIQUE,
     customer_seq BIGINT NOT NULL,

@@ -2,15 +2,19 @@
 
 -- 회사 마스터 테이블 생성
 CREATE TABLE IF NOT EXISTS companies (
-                                         company_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                         company_name VARCHAR(100) NOT NULL COMMENT '회사명',
+    company_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(100) NOT NULL COMMENT '회사명',
     business_number VARCHAR(20) COMMENT '사업자번호',
     representative VARCHAR(50) COMMENT '대표자명',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+);
 
--- 회사 기초 데이터 (중복 방지)
-INSERT IGNORE INTO companies (company_name, business_number, representative) VALUES
+-- 기존 데이터 삭제 후 AUTO_INCREMENT 리셋
+DELETE FROM companies;
+ALTER TABLE companies AUTO_INCREMENT = 1;
+
+-- 회사 기초 데이터
+INSERT INTO companies (company_name, business_number, representative) VALUES
 ('삼성전자', '123-45-67890', '이재용'),
 ('LG전자', '098-76-54321', '조성진'),
 ('현대자동차', '555-66-77888', '장재훈');
@@ -32,7 +36,7 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- 바이어 계정 생성 (비밀번호: test123) - 중복 방지
+-- 바이어 계정 생성 (비밀번호: 1234) - 중복 방지
 INSERT IGNORE INTO users (email, password, nickname, role, company_seq, created_at) VALUES
 ('buyer1@samsung.com', '$2a$10$Zk63iE9f2BM1bff87n7gO.VU9kXav8kHfMciH/SyOWixVDOEGMicq', '김바이어', 'BUYER', 1, NOW()),
 ('buyer2@lg.com', '$2a$10$Zk63iE9f2BM1bff87n7gO.VU9kXav8kHfMciH/SyOWixVDOEGMicq', '박바이어', 'BUYER', 2, NOW()),

@@ -1,5 +1,5 @@
 -- Create inventory table (재고)
-CREATE TABLE inventory (
+CREATE TABLE IF NOT EXISTS inventory (
     inventory_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     product_seq BIGINT NOT NULL,
     location VARCHAR(100) DEFAULT 'MAIN_WAREHOUSE',

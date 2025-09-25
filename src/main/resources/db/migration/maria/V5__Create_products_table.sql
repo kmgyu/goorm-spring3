@@ -1,5 +1,5 @@
 -- Create products table (상품)
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     product_seq BIGINT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(200) NOT NULL,
