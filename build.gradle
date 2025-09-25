@@ -43,6 +43,14 @@ dependencies {
     //excel 의존성 추가
     implementation 'org.apache.poi:poi:5.2.4'
     implementation 'org.apache.poi:poi-ooxml:5.2.4'
+
+    // PDF 생성 라이브러리 추가
+    implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.1.22'
+    implementation 'com.github.librepdf:openpdf:1.3.30'
+
+    // QR코드 생성 라이브러리
+    implementation 'com.google.zxing:core:3.5.2'
+    implementation 'com.google.zxing:javase:3.5.2'
     
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
