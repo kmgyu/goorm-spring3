@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.goorm.board.mapper.StockReceivingMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="stockReceivingResultMap" type="io.goorm.board.entity.StockReceiving">
+        <id property="receivingSeq" column="receiving_seq"/>
+        <result property="productSeq" column="product_seq"/>
+        <result property="categorySeq" column="category_seq"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="note" column="note"/>
+        <result property="processedBySeq" column="processed_by_seq"/>
+        <result property="excelFilename" column="excel_filename"/>
+        <result property="excelFilepath" column="excel_filepath"/>
+        <result property="excelRowNum" column="excel_row_num"/>
+        <result property="processedAt" column="processed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+        <!-- 조인된 데이터 -->
+        <result property="productName" column="product_name"/>
+        <result property="productCode" column="product_code"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="processedByName" column="processed_by_name"/>
+        <result property="processedByEmail" column="processed_by_email"/>
+    </resultMap>
+
+    <!-- 입고 이력 등록 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.StockReceiving" useGeneratedKeys="true" keyProperty="receivingSeq">
+        INSERT INTO stock_receiving (
+            product_seq, category_seq, quantity, unit_price, total_amount, note,
+            processed_by_seq, excel_filename, excel_filepath, excel_row_num, processed_at
+        ) VALUES (
+            #{productSeq}, #{categorySeq}, #{quantity}, #{unitPrice}, #{totalAmount}, #{note},
+            #{processedBySeq}, #{excelFilename}, #{excelFilepath}, #{excelRowNum}, #{processedAt}
+        )
+    </insert>
+
+    <!-- 입고 이력 조회 (상세) -->
+    <select id="findBySeq" resultMap="stockReceivingResultMap">
+        SELECT
+            sr.receiving_seq, sr.product_seq, sr.category_seq, sr.quantity,
+            sr.unit_price, sr.total_amount, sr.note, sr.processed_by_seq,
+            sr.excel_filename, sr.excel_filepath, sr.excel_row_num,
+            sr.processed_at, sr.created_at, sr.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        WHERE sr.receiving_seq = #{receivingSeq}
+    </select>
+
+    <!-- 입고 이력 목록 조회 -->
+    <select id="findAll" resultMap="stockReceivingResultMap">
+        SELECT
+            sr.receiving_seq, sr.product_seq, sr.category_seq, sr.quantity,
+            sr.unit_price, sr.total_amount, sr.note, sr.processed_by_seq,
+            sr.excel_filename, sr.excel_filepath, sr.excel_row_num,
+            sr.processed_at, sr.created_at, sr.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        <where>
+            <if test="searchDto.keyword != null and searchDto.keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{searchDto.keyword}, '%')
+                    OR p.code LIKE CONCAT('%', #{searchDto.keyword}, '%')
+                    OR u.name LIKE CONCAT('%', #{searchDto.keyword}, '%')
+                    OR sr.note LIKE CONCAT('%', #{searchDto.keyword}, '%'))
+            </if>
+            <if test="searchDto.productSeq != null">
+                AND sr.product_seq = #{searchDto.productSeq}
+            </if>
+            <if test="searchDto.categorySeq != null">
+                AND sr.category_seq = #{searchDto.categorySeq}
+            </if>
+            <if test="searchDto.processedBySeq != null">
+                AND sr.processed_by_seq = #{searchDto.processedBySeq}
+            </if>
+            <if test="searchDto.excelFilename != null and searchDto.excelFilename != ''">
+                AND sr.excel_filename LIKE CONCAT('%', #{searchDto.excelFilename}, '%')
+            </if>
+            <if test="searchDto.startDateTime != null">
+                AND sr.processed_at >= #{searchDto.startDateTime}
+            </if>
+            <if test="searchDto.endDateTime != null">
+                AND sr.processed_at <= #{searchDto.endDateTime}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="searchDto.sortBy == 'productName'">p.name</when>
+            <when test="searchDto.sortBy == 'categoryName'">c.name</when>
+            <when test="searchDto.sortBy == 'processedByName'">u.name</when>
+            <when test="searchDto.sortBy == 'quantity'">sr.quantity</when>
+            <when test="searchDto.sortBy == 'unitPrice'">sr.unit_price</when>
+            <when test="searchDto.sortBy == 'totalAmount'">sr.total_amount</when>
+            <otherwise>sr.processed_at</otherwise>
+        </choose>
+        <if test="searchDto.sortDir == 'ASC'">ASC</if>
+        <if test="searchDto.sortDir == 'DESC'">DESC</if>
+        LIMIT #{searchDto.size} OFFSET #{searchDto.offset}
+    </select>
+
+    <!-- 입고 이력 총 개수 -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        <where>
+            <if test="searchDto.keyword != null and searchDto.keyword != ''">
+                AND (p.name LIKE CONCAT('%', #{searchDto.keyword}, '%')
+                    OR p.code LIKE CONCAT('%', #{searchDto.keyword}, '%')
+                    OR u.name LIKE CONCAT('%', #{searchDto.keyword}, '%')
+                    OR sr.note LIKE CONCAT('%', #{searchDto.keyword}, '%'))
+            </if>
+            <if test="searchDto.productSeq != null">
+                AND sr.product_seq = #{searchDto.productSeq}
+            </if>
+            <if test="searchDto.categorySeq != null">
+                AND sr.category_seq = #{searchDto.categorySeq}
+            </if>
+            <if test="searchDto.processedBySeq != null">
+                AND sr.processed_by_seq = #{searchDto.processedBySeq}
+            </if>
+            <if test="searchDto.excelFilename != null and searchDto.excelFilename != ''">
+                AND sr.excel_filename LIKE CONCAT('%', #{searchDto.excelFilename}, '%')
+            </if>
+            <if test="searchDto.startDateTime != null">
+                AND sr.processed_at >= #{searchDto.startDateTime}
+            </if>
+            <if test="searchDto.endDateTime != null">
+                AND sr.processed_at <= #{searchDto.endDateTime}
+            </if>
+        </where>
+    </select>
+
+    <!-- 특정 상품의 입고 이력 조회 -->
+    <select id="findByProductSeq" resultMap="stockReceivingResultMap">
+        SELECT
+            sr.receiving_seq, sr.product_seq, sr.category_seq, sr.quantity,
+            sr.unit_price, sr.total_amount, sr.note, sr.processed_by_seq,
+            sr.excel_filename, sr.excel_filepath, sr.excel_row_num,
+            sr.processed_at, sr.created_at, sr.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        WHERE sr.product_seq = #{productSeq}
+        ORDER BY sr.processed_at DESC
+    </select>
+
+    <!-- 특정 처리자의 입고 이력 조회 -->
+    <select id="findByProcessedBySeq" resultMap="stockReceivingResultMap">
+        SELECT
+            sr.receiving_seq, sr.product_seq, sr.category_seq, sr.quantity,
+            sr.unit_price, sr.total_amount, sr.note, sr.processed_by_seq,
+            sr.excel_filename, sr.excel_filepath, sr.excel_row_num,
+            sr.processed_at, sr.created_at, sr.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        WHERE sr.processed_by_seq = #{processedBySeq}
+        ORDER BY sr.processed_at DESC
+    </select>
+
+    <!-- 기간별 입고 이력 조회 -->
+    <select id="findByPeriod" resultMap="stockReceivingResultMap">
+        SELECT
+            sr.receiving_seq, sr.product_seq, sr.category_seq, sr.quantity,
+            sr.unit_price, sr.total_amount, sr.note, sr.processed_by_seq,
+            sr.excel_filename, sr.excel_filepath, sr.excel_row_num,
+            sr.processed_at, sr.created_at, sr.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        WHERE sr.processed_at BETWEEN #{startDate} AND #{endDate}
+        ORDER BY sr.processed_at DESC
+    </select>
+
+    <!-- 특정 엑셀 파일의 입고 이력 조회 -->
+    <select id="findByExcelFilename" resultMap="stockReceivingResultMap">
+        SELECT
+            sr.receiving_seq, sr.product_seq, sr.category_seq, sr.quantity,
+            sr.unit_price, sr.total_amount, sr.note, sr.processed_by_seq,
+            sr.excel_filename, sr.excel_filepath, sr.excel_row_num,
+            sr.processed_at, sr.created_at, sr.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email
+        FROM stock_receiving sr
+        LEFT JOIN products p ON sr.product_seq = p.product_seq
+        LEFT JOIN categories c ON sr.category_seq = c.category_seq
+        LEFT JOIN users u ON sr.processed_by_seq = u.user_seq
+        WHERE sr.excel_filename = #{excelFilename}
+        ORDER BY sr.excel_row_num ASC
+    </select>
+
+    <!-- 입고 이력 수정 -->
+    <update id="update" parameterType="io.goorm.board.entity.StockReceiving">
+        UPDATE stock_receiving SET
+            quantity = #{quantity},
+            unit_price = #{unitPrice},
+            total_amount = #{totalAmount},
+            note = #{note},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE receiving_seq = #{receivingSeq}
+    </update>
+
+    <!-- 입고 이력 삭제 -->
+    <delete id="deleteBySeq">
+        DELETE FROM stock_receiving WHERE receiving_seq = #{receivingSeq}
+    </delete>
+
+    <!-- 특정 엑셀 파일의 입고 이력 전체 삭제 -->
+    <delete id="deleteByExcelFilename">
+        DELETE FROM stock_receiving WHERE excel_filename = #{excelFilename}
+    </delete>
+
+</mapper>

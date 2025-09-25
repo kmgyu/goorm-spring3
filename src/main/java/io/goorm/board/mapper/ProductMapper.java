@@ -88,4 +88,10 @@ public interface ProductMapper {
      * 최근 등록된 상품 목록 조회
      */
     List<ProductDto> findRecentProducts(@Param("limit") int limit);
+
+    /**
+     * 상품명과 카테고리명으로 상품 조회 (엑셀 입고용)
+     */
+    Optional<Product> findByNameAndCategory(@Param("productName") String productName,
+                                          @Param("categoryName") String categoryName);
 }

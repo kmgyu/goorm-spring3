@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.goorm.board.mapper.InvoiceHistoryMapper">
+
+    <!-- 인보이스 이력 결과 맵 -->
+    <resultMap id="invoiceHistoryResultMap" type="io.goorm.board.entity.InvoiceHistory">
+        <id property="printSeq" column="print_seq"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="invoiceId" column="invoice_id"/>
+        <result property="printedAt" column="printed_at"/>
+        <result property="printedBySeq" column="printed_by_seq"/>
+        <result property="printedBy" column="printed_by"/>
+        <result property="printCount" column="print_count"/>
+        <result property="createdAt" column="created_at"/>
+        <!-- 조인 필드 -->
+        <result property="orderNumber" column="order_number"/>
+        <result property="companyName" column="company_name"/>
+    </resultMap>
+
+    <!-- 인보이스 출력 이력 등록 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.InvoiceHistory"
+            useGeneratedKeys="true" keyProperty="printSeq">
+        INSERT INTO invoice_history (
+            order_seq, invoice_id, printed_at, printed_by_seq,
+            printed_by, print_count
+        ) VALUES (
+            #{orderSeq}, #{invoiceId}, #{printedAt}, #{printedBySeq},
+            #{printedBy}, #{printCount}
+        )
+    </insert>
+
+    <!-- 주문별 인보이스 출력 이력 조회 -->
+    <select id="findByOrderSeq" parameterType="long" resultMap="invoiceHistoryResultMap">
+        SELECT ih.print_seq, ih.order_seq, ih.invoice_id, ih.printed_at,
+               ih.printed_by_seq, ih.printed_by, ih.print_count, ih.created_at,
+               o.order_number, c.company_name
+        FROM invoice_history ih
+        LEFT JOIN orders o ON ih.order_seq = o.order_seq
+        LEFT JOIN companies c ON o.company_seq = c.company_seq
+        WHERE ih.order_seq = #{orderSeq}
+        ORDER BY ih.printed_at DESC
+    </select>
+
+    <!-- 인보이스 ID로 조회 -->
+    <select id="findByInvoiceId" parameterType="string" resultMap="invoiceHistoryResultMap">
+        SELECT ih.print_seq, ih.order_seq, ih.invoice_id, ih.printed_at,
+               ih.printed_by_seq, ih.printed_by, ih.print_count, ih.created_at,
+               o.order_number, c.company_name
+        FROM invoice_history ih
+        LEFT JOIN orders o ON ih.order_seq = o.order_seq
+        LEFT JOIN companies c ON o.company_seq = c.company_seq
+        WHERE ih.invoice_id = #{invoiceId}
+        ORDER BY ih.printed_at DESC
+    </select>
+
+    <!-- 사용자별 인보이스 출력 이력 조회 -->
+    <select id="findByPrintedBySeq" parameterType="long" resultMap="invoiceHistoryResultMap">
+        SELECT ih.print_seq, ih.order_seq, ih.invoice_id, ih.printed_at,
+               ih.printed_by_seq, ih.printed_by, ih.print_count, ih.created_at,
+               o.order_number, c.company_name
+        FROM invoice_history ih
+        LEFT JOIN orders o ON ih.order_seq = o.order_seq
+        LEFT JOIN companies c ON o.company_seq = c.company_seq
+        WHERE ih.printed_by_seq = #{printedBySeq}
+        ORDER BY ih.printed_at DESC
+    </select>
+
+</mapper>

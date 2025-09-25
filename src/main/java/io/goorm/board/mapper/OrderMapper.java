@@ -19,6 +19,16 @@ public interface OrderMapper {
      */
     int insert(Order order);
 
+    /**
+     * 배송완료 + 인보이스 발행 통합 처리
+     */
+    int updateDeliveryComplete(Order order);
+
+    /**
+     * 입금완료 처리
+     */
+    int updatePaymentComplete(Order order);
+
 
     /**
      * 발주 조회 (ID)

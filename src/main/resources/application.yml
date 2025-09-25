@@ -4,9 +4,9 @@ spring:
 
   # 공통 데이터소스 설정
   datasource:
-    url: jdbc:mariadb://localhost:3307/goorm_db
-    username: goorm-board
-    password: goorm1234
+    url: jdbc:mariadb://localhost:3307/goorm_board
+    username: goorm
+    password: 1234
 
   # 공통 Thymeleaf 설정
   thymeleaf:
@@ -16,6 +16,9 @@ spring:
   flyway:
     locations: classpath:db/migration/maria
     baseline-on-migrate: true
+    validate-on-migrate: false
+    clean-on-validation-error: true
+    repair-on-migrate: true
 
 
   # 파일 업로드 설정
@@ -40,4 +43,7 @@ logging:
 # 애플리케이션 설정
 app:
   upload:
-    root: /src/main/resources/static/uploads
+    # 웹에서 접근 가능한 파일들 (이미지 등)
+    web-root: /src/main/resources/static/uploads
+    # 웹에서 접근 불가능한 문서들 (엑셀 등)
+    document-root: /app/documents

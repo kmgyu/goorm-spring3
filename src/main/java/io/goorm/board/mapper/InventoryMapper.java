@@ -79,4 +79,15 @@ public interface InventoryMapper {
      */
     int decreaseStock(@Param("productSeq") Long productSeq,
                      @Param("quantity") Integer quantity);
+
+    /**
+     * 재고 증가 (입고 처리 시)
+     */
+    int increaseStock(@Param("productSeq") Long productSeq,
+                     @Param("quantity") Integer quantity);
+
+    /**
+     * 신규 재고 생성
+     */
+    int insert(Inventory inventory);
 }

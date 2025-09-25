@@ -21,13 +21,23 @@
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
         <result property="version" column="version"/>
+        <!-- 결제 및 인보이스 관련 -->
+        <result property="paymentStatus" column="payment_status"/>
+        <result property="paymentDueDate" column="payment_due_date"/>
+        <result property="paymentCompletedDate" column="payment_completed_date"/>
+        <result property="invoiceGeneratedAt" column="invoice_generated_at"/>
+        <result property="paymentCompletedBySeq" column="payment_completed_by_seq"/>
+        <result property="paymentCompletedBy" column="payment_completed_by"/>
+        <result property="deliveryCompletedBySeq" column="delivery_completed_by_seq"/>
+        <result property="deliveryCompletedBy" column="delivery_completed_by"/>
+        <result property="deliveryCompletedAt" column="delivery_completed_at"/>
         <!-- 조인 정보 -->
         <result property="companyName" column="company_name"/>
         <result property="userName" column="user_name"/>
         <result property="userEmail" column="user_email"/>
     </resultMap>
 
-    <!-- 발주 등록 -->
+    <!-- 주문 등록 -->
     <insert id="insert" parameterType="io.goorm.board.entity.Order" useGeneratedKeys="true" keyProperty="orderSeq">
         INSERT INTO orders (
         company_seq, user_seq, order_number, order_date, status, delivery_status,
@@ -40,21 +50,49 @@
         )
     </insert>
 
+    <!-- 배송완료 + 인보이스 발행 통합 처리 -->
+    <update id="updateDeliveryComplete" parameterType="io.goorm.board.entity.Order">
+        UPDATE orders SET
+            delivery_status = #{deliveryStatus},
+            delivery_completed_by_seq = #{deliveryCompletedBySeq},
+            delivery_completed_at = #{deliveryCompletedAt},
+            invoice_generated_at = #{invoiceGeneratedAt},
+            payment_due_date = #{paymentDueDate},
+            notes = #{notes},
+            updated_at = #{updatedAt}
+        WHERE order_seq = #{orderSeq}
+    </update>
 
-    <!-- 발주 단건 조회 -->
+    <!-- 입금완료 처리 -->
+    <update id="updatePaymentComplete" parameterType="io.goorm.board.entity.Order">
+        UPDATE orders SET
+            payment_status = #{paymentStatus},
+            payment_completed_date = #{paymentCompletedDate},
+            payment_completed_by_seq = #{paymentCompletedBySeq},
+            payment_completed_by = #{paymentCompletedBy},
+            updated_at = #{updatedAt}
+        WHERE order_seq = #{orderSeq}
+    </update>
+
+    <!-- 주문 단건 조회 -->
     <select id="findById" parameterType="long" resultMap="OrderResultMap">
         SELECT o.order_seq, o.company_seq, o.user_seq, o.order_number, o.order_date,
                o.status, o.delivery_status, o.total_amount, o.discount_rate,
                o.discount_amount, o.final_amount, o.approved_by, o.approved_at,
                o.notes, o.created_at, o.updated_at, o.version,
-               c.company_name, u.nickname as user_name, u.email as user_email
+               o.payment_status, o.payment_due_date, o.payment_completed_date,
+               o.invoice_generated_at, o.payment_completed_by_seq, o.payment_completed_by,
+               o.delivery_completed_by_seq, o.delivery_completed_at,
+               c.company_name, u.nickname as user_name, u.email as user_email,
+               du.nickname as delivery_completed_by
         FROM orders o
         LEFT JOIN companies c ON o.company_seq = c.company_seq
         LEFT JOIN users u ON o.user_seq = u.user_seq
+        LEFT JOIN users du ON o.delivery_completed_by_seq = du.user_seq
         WHERE o.order_seq = #{orderSeq}
     </select>
 
-    <!-- 회사별 발주 목록 조회 -->
+    <!-- 회사별 주문 목록 조회 -->
     <select id="findByCompanySeq" resultMap="OrderResultMap">
         SELECT o.order_seq, o.company_seq, o.user_seq, o.order_number, o.order_date,
                o.status, o.delivery_status, o.total_amount, o.discount_rate,
@@ -86,7 +124,7 @@
         ORDER BY o.order_date DESC, o.order_seq DESC
     </select>
 
-    <!-- 전체 발주 목록 조회 (관리자용) -->
+    <!-- 전체 주문 목록 조회 (관리자용) -->
     <select id="findAll" resultMap="OrderResultMap">
         SELECT o.order_seq, o.company_seq, o.user_seq, o.order_number, o.order_date,
                o.status, o.delivery_status, o.total_amount, o.discount_rate,
@@ -122,7 +160,7 @@
         ORDER BY o.order_date DESC, o.order_seq DESC
     </select>
 
-    <!-- 발주번호로 조회 -->
+    <!-- 주문번호로 조회 -->
     <select id="findByOrderNumber" parameterType="string" resultMap="OrderResultMap">
         SELECT o.order_seq, o.company_seq, o.user_seq, o.order_number, o.order_date,
                o.status, o.delivery_status, o.total_amount, o.discount_rate,
@@ -135,7 +173,7 @@
         WHERE o.order_number = #{orderNumber}
     </select>
 
-    <!-- 회사별 발주 개수 조회 -->
+    <!-- 회사별 주문 개수 조회 -->
     <select id="countByCompanySeq" resultType="long">
         SELECT COUNT(*)
         FROM orders o
@@ -160,7 +198,7 @@
         </if>
     </select>
 
-    <!-- 전체 발주 개수 조회 -->
+    <!-- 전체 주문 개수 조회 -->
     <select id="countAll" resultType="long">
         SELECT COUNT(*)
         FROM orders o
@@ -189,7 +227,7 @@
         </where>
     </select>
 
-    <!-- 미처리 발주 목록 -->
+    <!-- 미처리 주문 목록 -->
     <select id="findPendingOrders" resultMap="OrderResultMap">
         SELECT o.order_seq, o.company_seq, o.user_seq, o.order_number, o.order_date,
                o.status, o.delivery_status, o.total_amount, o.discount_rate,
