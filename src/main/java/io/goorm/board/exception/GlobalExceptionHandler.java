@@ -1,5 +1,7 @@
 package io.goorm.board.exception;
 
+import io.goorm.board.dto.LoginDto;
+import io.goorm.board.dto.SignupDto;
 import io.goorm.board.exception.excel.ExcelExportException;
 import io.goorm.board.exception.supplier.SupplierNotFoundException;
 import io.goorm.board.exception.supplier.SupplierValidationException;
@@ -72,7 +74,7 @@ public class GlobalExceptionHandler {
         );
 
         model.addAttribute("error", errorMessage);
-        model.addAttribute("signupDto", new io.goorm.board.dto.SignupDto());
+        model.addAttribute("signupDto", new SignupDto());
 
         return "auth/signup";
     }
@@ -82,26 +84,31 @@ public class GlobalExceptionHandler {
      * 로그인 실패 시 로그인 폼으로 리다이렉트
      */
     @ExceptionHandler(InvalidCredentialsException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleInvalidCredentialsException(InvalidCredentialsException e, Model model) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String handleInvalidCredentialsException(InvalidCredentialsException e, Model model,
+                                                    HttpServletRequest request) {
         log.warn("Invalid credentials: {}", e.getMessage());
 
-        // 국제화 메시지 조회
         String errorMessage = messageSource.getMessage(
-            "error.login.invalid",
-            null,
-            LocaleContextHolder.getLocale()
-        );
+                "error.login.invalid", null, LocaleContextHolder.getLocale());
+
+        // 원래라면 Auth Failed Handler를 사용해야 하지만 없음;;
+        // 1순위: 예외가 아이디를 들고 있다면 사용
+        // 2순위: 요청 파라미터에서 username 가져오기
+        String loginId = (e.getEmail() != null) ? e.getEmail()
+                : request.getParameter("username"); // 혹은 "loginId", "email" 등 실제 필드명
 
         model.addAttribute("error", errorMessage);
-        model.addAttribute("loginDto", new io.goorm.board.dto.LoginDto());
+        model.addAttribute("loginDto", LoginDto.builder()
+                .email(loginId)
+                .build()); // 비밀번호는 절대 채우지 않음
 
         return "auth/login";
     }
 
     /**
      * UserNotFoundException 처리
-     * 사용자 조회 실패 시 메인 페이지로 리다이렉트
+     * 사용자 조회 실패 시 404 페이지로 리다이렉트
      */
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -146,7 +153,7 @@ public class GlobalExceptionHandler {
      * 인증 필요한 요청 시 로그인 페이지로 리다이렉트
      */
     @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
         log.warn("Authentication required: {} - {}", request.getRequestURI(), e.getMessage());
         
