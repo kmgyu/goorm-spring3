@@ -28,7 +28,7 @@
     </div>
 
     <!-- 카테고리 등록/수정 폼 -->
-    <form th:action="${category.categorySeq != null ? '/categories/' + category.categorySeq : '/categories'}"
+    <form th:action="${category.categorySeq != null ? '/admin/categories/' + category.categorySeq : '/admin/categories'}"
           method="post"
           th:object="${category}"
           class="space-y-8">
@@ -77,7 +77,7 @@
 
         <!-- 폼 액션 버튼 -->
         <div class="flex justify-end space-x-4">
-            <a th:href="@{/categories}"
+            <a th:href="@{/admin/categories}"
                class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                th:text="#{category.action.cancel}">취소</a>
 

@@ -98,7 +98,7 @@ public class CategoryController {
             CategoryDto savedCategory = categoryService.create(createDto);
             String message = messageSource.getMessage("category.message.create.success", null, localeResolver.resolveLocale(request));
             redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/categories/" + savedCategory.getCategorySeq();
+            return "redirect:/admin/categories/" + savedCategory.getCategorySeq();
         } catch (Exception e) {
             log.error("카테고리 등록 실패", e);
             model.addAttribute("errorMessage", e.getMessage());
@@ -134,7 +134,7 @@ public class CategoryController {
             CategoryDto updatedCategory = categoryService.update(updateDto);
             String message = messageSource.getMessage("category.message.update.success", null, localeResolver.resolveLocale(request));
             redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/categories/" + updatedCategory.getCategorySeq();
+            return "redirect:/admin/categories/" + updatedCategory.getCategorySeq();
         } catch (Exception e) {
             log.error("카테고리 수정 실패", e);
             model.addAttribute("errorMessage", e.getMessage());
@@ -159,7 +159,7 @@ public class CategoryController {
         } catch (Exception e) {
             log.error("Failed to get category detail for seq: {}", categorySeq, e);
             model.addAttribute("errorMessage", e.getMessage());
-            return "redirect:/categories";
+            return "redirect:/admin/categories";
         }
     }
 
@@ -187,7 +187,7 @@ public class CategoryController {
         } catch (Exception e) {
             log.error("Failed to get category for edit form, seq: {}", categorySeq, e);
             model.addAttribute("errorMessage", e.getMessage());
-            return "redirect:/categories";
+            return "redirect:/admin/categories";
         }
     }
 
@@ -211,7 +211,7 @@ public class CategoryController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
-        return "redirect:/categories";
+        return "redirect:/admin/categories";
     }
 
     /**
@@ -234,7 +234,7 @@ public class CategoryController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
-        return "redirect:/categories";
+        return "redirect:/admin/categories";
     }
 
 

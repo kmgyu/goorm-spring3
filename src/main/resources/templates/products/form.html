@@ -25,7 +25,7 @@
     </div>
 
     <!-- 상품 등록/수정 폼 -->
-    <form th:action="${product.productSeq != null ? '/products/' + product.productSeq : '/products'}"
+    <form th:action="${product.productSeq != null ? '/admin/products/' + product.productSeq : '/admin/products'}"
           method="post"
           th:object="${product}"
           enctype="multipart/form-data"

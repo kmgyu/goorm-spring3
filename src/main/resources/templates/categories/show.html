@@ -106,19 +106,19 @@
 
         <!-- 액션 버튼 -->
         <div class="mt-8 flex justify-between items-center">
-            <a th:href="@{/categories}"
+            <a th:href="@{/admin/categories}"
                class="text-blue-600 hover:text-blue-800 font-medium"
                th:text="#{category.action.list}">← 목록</a>
 
             <div class="flex space-x-4">
                 <!-- 수정 버튼 -->
-                <a th:href="@{/categories/{seq}/edit(seq=${category.categorySeq})}"
+                <a th:href="@{/admin/categories/{seq}/edit(seq=${category.categorySeq})}"
                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                    th:text="#{category.action.edit}">수정</a>
 
                 <!-- 활성화/비활성화 버튼 -->
                 <form th:if="${category.status.name() == 'ACTIVE'}"
-                      th:action="@{/categories/{seq}/deactivate(seq=${category.categorySeq})}"
+                      th:action="@{/admin/categories/{seq}/deactivate(seq=${category.categorySeq})}"
                       method="post" class="inline">
                     <button type="submit"
                             class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -127,7 +127,7 @@
                 </form>
 
                 <form th:if="${category.status.name() == 'INACTIVE'}"
-                      th:action="@{/categories/{seq}/activate(seq=${category.categorySeq})}"
+                      th:action="@{/admin/categories/{seq}/activate(seq=${category.categorySeq})}"
                       method="post" class="inline">
                     <button type="submit"
                             class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"

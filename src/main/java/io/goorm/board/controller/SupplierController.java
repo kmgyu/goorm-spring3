@@ -114,7 +114,7 @@ public class SupplierController {
         Long supplierSeq = supplierService.create(createDto);
         String message = messageSource.getMessage("supplier.message.create.success", null, localeResolver.resolveLocale(request));
         redirectAttributes.addFlashAttribute("successMessage", message);
-        return "redirect:/suppliers/" + supplierSeq;
+        return "redirect:/admin/suppliers/" + supplierSeq;
     }
 
     /**
@@ -172,7 +172,7 @@ public class SupplierController {
         supplierService.update(seq, updateDto);
         String message = messageSource.getMessage("supplier.message.update.success", null, localeResolver.resolveLocale(request));
         redirectAttributes.addFlashAttribute("successMessage", message);
-        return "redirect:/suppliers/" + seq;
+        return "redirect:/admin/suppliers/" + seq;
     }
 
     /**
@@ -186,7 +186,7 @@ public class SupplierController {
         String message = messageSource.getMessage("supplier.message.activate.success", null, localeResolver.resolveLocale(request));
         redirectAttributes.addFlashAttribute("successMessage", message);
 
-        return "redirect:/suppliers/" + seq;
+        return "redirect:/admin/suppliers/" + seq;
     }
 
     /**
@@ -200,7 +200,7 @@ public class SupplierController {
         String message = messageSource.getMessage("supplier.message.deactivate.success", null, localeResolver.resolveLocale(request));
         redirectAttributes.addFlashAttribute("successMessage", message);
 
-        return "redirect:/suppliers/" + seq;
+        return "redirect:/admin/suppliers/" + seq;
     }
 
     /**
