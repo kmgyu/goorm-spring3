@@ -16,7 +16,7 @@
 
         <!-- 검색 및 필터 영역 -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <form th:action="@{/products}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form th:action="@{/admin/products}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- 검색어 -->
                 <div>
                     <label for="keyword" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{product.search.keyword}">검색어</label>
@@ -66,7 +66,7 @@
             <div class="flex items-center space-x-4">
                 <span class="text-sm text-gray-500">총 <strong th:text="${totalElements}">0</strong>개의 상품</span>
                 <!-- 엑셀 다운로드 버튼 -->
-                <a th:href="@{/products/excel(keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
+                <a th:href="@{/admin/products/excel(keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
                    class="flex items-center px-3 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -74,7 +74,7 @@
                     <span th:text="#{product.action.excel.download}">엑셀 다운로드</span>
                 </a>
             </div>
-            <a th:href="@{/products/new}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            <a th:href="@{/admin/products/new}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
                th:text="#{product.action.create}">
                 + 상품 등록
             </a>
@@ -144,9 +144,9 @@
                         </td>
                         <td class="px-6 py-4 text-sm font-medium">
                             <div class="flex space-x-2">
-                                <a th:href="@{/products/{id}(id=${product.productSeq})}" class="text-blue-600 hover:text-blue-900" th:text="#{product.action.detail}">상세</a>
-                                <a th:href="@{/products/{id}/edit(id=${product.productSeq})}" class="text-blue-600 hover:text-blue-900" th:text="#{product.action.edit}">수정</a>
-                                <form th:action="@{/products/{id}/delete(id=${product.productSeq})}" method="post" class="inline"
+                                <a th:href="@{/admin/products/{id}(id=${product.productSeq})}" class="text-blue-600 hover:text-blue-900" th:text="#{product.action.detail}">상세</a>
+                                <a th:href="@{/admin/products/{id}/edit(id=${product.productSeq})}" class="text-blue-600 hover:text-blue-900" th:text="#{product.action.edit}">수정</a>
+                                <form th:action="@{/admin/products/{id}/delete(id=${product.productSeq})}" method="post" class="inline"
                                       th:attr="onsubmit='return confirm(' + #{product.confirm.delete} + ')'">
                                     <button type="submit" class="text-red-600 hover:text-red-900" th:text="#{product.action.delete}">삭제</button>
                                 </form>
@@ -175,7 +175,7 @@
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                             <!-- 이전 페이지 -->
                             <a th:if="${products.hasPrevious()}"
-                               th:href="@{/products(page=${products.number}, size=${products.size}, keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
+                               th:href="@{/admin/products(page=${products.number}, size=${products.size}, keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                                th:text="#{product.pagination.previous}">
                                 이전
@@ -184,7 +184,7 @@
                             <!-- 페이지 번호들 -->
                             <span th:each="pageNum : ${#numbers.sequence(T(java.lang.Math).max(1, products.number), T(java.lang.Math).min(products.totalPages, products.number + 4))}">
                                 <a th:if="${pageNum != products.number + 1}"
-                                   th:href="@{/products(page=${pageNum}, size=${products.size}, keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
+                                   th:href="@{/admin/products(page=${pageNum}, size=${products.size}, keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
                                    th:text="${pageNum}"
                                    class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
                                 </a>
@@ -196,7 +196,7 @@
 
                             <!-- 다음 페이지 -->
                             <a th:if="${products.hasNext()}"
-                               th:href="@{/products(page=${products.number + 2}, size=${products.size}, keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
+                               th:href="@{/admin/products(page=${products.number + 2}, size=${products.size}, keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                                th:text="#{product.pagination.next}">
                                 다음

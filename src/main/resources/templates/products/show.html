@@ -15,18 +15,18 @@
                 <p class="mt-2 text-sm text-gray-600">상품의 상세 정보를 확인합니다.</p>
             </div>
             <div class="flex space-x-3">
-                <a th:href="@{/products/{id}/edit(id=${product.productSeq})}"
+                <a th:href="@{/admin/products/{id}/edit(id=${product.productSeq})}"
                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     수정
                 </a>
-                <form th:action="@{/products/{id}/delete(id=${product.productSeq})}" method="post" class="inline"
+                <form th:action="@{/admin/products/{id}/delete(id=${product.productSeq})}" method="post" class="inline"
                       onsubmit="return confirm('정말 삭제하시겠습니까?')">
                     <button type="submit"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                         삭제
                     </button>
                 </form>
-                <a th:href="@{/products}"
+                <a th:href="@{/admin/products}"
                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     목록
                 </a>
