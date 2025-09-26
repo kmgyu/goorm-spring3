@@ -131,9 +131,9 @@ public class GlobalExceptionHandler {
      * AccessDeniedException 처리
      * 권한 없는 접근 시 게시글 상세 페이지로 리다이렉트
      */
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public String handleSpringSecurityAccessDenied(org.springframework.security.access.AccessDeniedException e, Model model, HttpServletRequest request) {
+    public String handleSpringSecurityAccessDenied(AccessDeniedException e, Model model, HttpServletRequest request) {
         log.warn("Access denied: {} - {}", request.getRequestURI(), e.getMessage());
 
         // 국제화 메시지 조회

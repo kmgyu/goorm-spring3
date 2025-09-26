@@ -1,5 +1,6 @@
 package io.goorm.board.config;
 
+import io.goorm.board.enums.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +22,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/buyer/**").hasRole("BUYER")
+                .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
+                .requestMatchers("/buyer/**").hasRole(UserRole.BUYER.name())
                 .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
                 .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.*").permitAll()
                 .requestMatchers("/posts/[0-9]+").permitAll()
