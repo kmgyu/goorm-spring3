@@ -205,6 +205,7 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
+        LEFT JOIN inventory i ON i.category_seq = p.category_seq
         WHERE p.product_seq = #{productSeq}
     </select>
 
@@ -214,6 +215,7 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
+        LEFT JOIN inventory i ON i.product_seq = p.product_seq
         <include refid="searchConditions"/>
         <include refid="orderBy"/>
         LIMIT #{search.offset}, #{search.size}
@@ -260,6 +262,7 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
+        LEFT JOIN inventory i ON i.product_seq = p.product_seq
         WHERE p.status = #{status}
         ORDER BY p.created_at DESC
     </select>
@@ -281,6 +284,7 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
+        LEFT JOIN inventory i ON i.category_seq = p.category_seq
         ORDER BY p.created_at DESC
         LIMIT #{limit}
     </select>
