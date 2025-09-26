@@ -79,32 +79,6 @@ public class GlobalExceptionHandler {
         return "auth/signup";
     }
 
-    /**
-     * InvalidCredentialsException 처리
-     * 로그인 실패 시 로그인 폼으로 리다이렉트
-     */
-    @ExceptionHandler(InvalidCredentialsException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String handleInvalidCredentialsException(InvalidCredentialsException e, Model model,
-                                                    HttpServletRequest request) {
-        log.warn("Invalid credentials: {}", e.getMessage());
-
-        String errorMessage = messageSource.getMessage(
-                "error.login.invalid", null, LocaleContextHolder.getLocale());
-
-        // 원래라면 Auth Failed Handler를 사용해야 하지만 없음;;
-        // 1순위: 예외가 아이디를 들고 있다면 사용
-        // 2순위: 요청 파라미터에서 username 가져오기
-        String loginId = (e.getEmail() != null) ? e.getEmail()
-                : request.getParameter("eamil");
-
-        model.addAttribute("error", errorMessage);
-        model.addAttribute("loginDto", LoginDto.builder()
-                .email(loginId)
-                .build()); // 비밀번호는 절대 채우지 않음
-
-        return "auth/login";
-    }
 
     /**
      * UserNotFoundException 처리
@@ -147,24 +121,8 @@ public class GlobalExceptionHandler {
 
         return "error/403";
     }
-    
-    /**
-     * AuthenticationException 처리
-     * 인증 필요한 요청 시 로그인 페이지로 리다이렉트
-     */
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
-        log.warn("Authentication required: {} - {}", request.getRequestURI(), e.getMessage());
-        
-        // 원래 요청 URL을 로그인 후 리다이렉트를 위해 저장
-        String redirectUrl = request.getRequestURI();
-        if (request.getQueryString() != null) {
-            redirectUrl += "?" + request.getQueryString();
-        }
-        
-        return "redirect:/auth/login?redirect=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
-    }
+
+
 
     /**
      * 기타 모든 예외 처리
