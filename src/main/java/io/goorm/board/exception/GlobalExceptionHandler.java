@@ -96,7 +96,7 @@ public class GlobalExceptionHandler {
         // 1순위: 예외가 아이디를 들고 있다면 사용
         // 2순위: 요청 파라미터에서 username 가져오기
         String loginId = (e.getEmail() != null) ? e.getEmail()
-                : request.getParameter("username"); // 혹은 "loginId", "email" 등 실제 필드명
+                : request.getParameter("eamil");
 
         model.addAttribute("error", errorMessage);
         model.addAttribute("loginDto", LoginDto.builder()
