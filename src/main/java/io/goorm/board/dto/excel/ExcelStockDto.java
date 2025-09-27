@@ -8,15 +8,17 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 엑셀 입고 처리 DTO
+ * 엑셀 재고 처리 DTO
  */
 @Data
-public class StockReceivingDto {
+public class ExcelStockDto {
 
-    @NotBlank(message = "상품명은 필수입니다")
-    private String productName;
+    @NotBlank(message = "상품코드는 필수입니다")
+    private String productCode;
 
-    @NotBlank(message = "카테고리명은 필수입니다")
+    private String productName; // 참조용 (실제 매칭에는 미사용)
+
+    @Deprecated // 더 이상 사용하지 않음
     private String categoryName;
 
     @NotNull(message = "입고수량은 필수입니다")

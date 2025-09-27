@@ -1,6 +1,6 @@
 package io.goorm.board.service;
 
-import io.goorm.board.dto.excel.StockReceivingDto;
+import io.goorm.board.dto.excel.ExcelStockDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -31,9 +31,9 @@ public class ExcelService {
 
             Sheet sheet = workbook.createSheet("입고처리");
 
-            // 헤더 생성
+            // 헤더 생성 (새로운 형식)
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"상품명", "카테고리명", "입고수량", "입고단가", "비고"};
+            String[] headers = {"상품코드", "상품명", "입고수량", "입고단가", "비고"};
 
             CellStyle headerStyle = createHeaderStyle(workbook);
             for (int i = 0; i < headers.length; i++) {
@@ -42,18 +42,9 @@ public class ExcelService {
                 cell.setCellStyle(headerStyle);
             }
 
-            // 완성된 테스트 데이터 추가
+            // V16 샘플데이터 기반 테스트 데이터 (삼성전자 공급업체 상품 - ACTIVE 확실함)
             Object[][] testData = {
-                {"노트북 컴퓨터", "전자제품", 20, 1500000, "고성능 업무용 노트북"},
-                {"무선 마우스", "전자제품", 50, 25000, "블루투스 무선 마우스"},
-                {"키보드", "전자제품", 30, 85000, "기계식 키보드"},
-                {"모니터", "전자제품", 15, 350000, "27인치 4K 모니터"},
-                {"책상", "가구", 10, 180000, "높이조절 책상"},
-                {"의자", "가구", 12, 220000, "인체공학적 의자"},
-                {"필기구 세트", "사무용품", 100, 15000, "볼펜, 연필, 지우개 세트"},
-                {"복사용지", "사무용품", 200, 8000, "A4 80g 500매"},
-                {"테이블", "가구", 8, 150000, "회의용 테이블"},
-                {"프린터", "전자제품", 5, 180000, "레이저 프린터"}
+                    {"PROD-001", "갤럭시 S24", 10, 1200000, "갤럭시 S24 신제품 입고"}
             };
 
             for (int i = 0; i < testData.length; i++) {
@@ -91,9 +82,9 @@ public class ExcelService {
 
             Sheet sheet = workbook.createSheet("입고처리");
 
-            // 헤더 생성
+            // 헤더 생성 (새로운 형식)
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"상품명", "카테고리명", "입고수량", "입고단가", "비고"};
+            String[] headers = {"상품코드", "상품명", "입고수량", "입고단가", "비고"};
 
             CellStyle headerStyle = createHeaderStyle(workbook);
             for (int i = 0; i < headers.length; i++) {
@@ -120,8 +111,8 @@ public class ExcelService {
     /**
      * 엑셀 파일에서 입고 데이터 파싱
      */
-    public List<StockReceivingDto> parseStockReceivingExcel(MultipartFile file) {
-        List<StockReceivingDto> stockList = new ArrayList<>();
+    public List<ExcelStockDto> parseStockReceivingExcel(MultipartFile file) {
+        List<ExcelStockDto> stockList = new ArrayList<>();
 
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -134,7 +125,7 @@ public class ExcelService {
                 }
 
                 try {
-                    StockReceivingDto dto = parseRowToDto(row, i + 1);
+                    ExcelStockDto dto = parseRowToDto(row, i + 1);
                     if (dto != null) {
                         stockList.add(dto);
                     }
@@ -154,25 +145,22 @@ public class ExcelService {
     }
 
     /**
-     * 행을 DTO로 변환
+     * 행을 DTO로 변환 (상품코드 기반)
      */
-    private StockReceivingDto parseRowToDto(Row row, int rowNumber) {
-        StockReceivingDto dto = new StockReceivingDto();
+    private ExcelStockDto parseRowToDto(Row row, int rowNumber) {
+        ExcelStockDto dto = new ExcelStockDto();
         dto.setRowNumber(rowNumber);
 
-        // 상품명 (필수)
-        String productName = getCellStringValue(row.getCell(0));
-        if (productName == null || productName.trim().isEmpty()) {
-            throw new RuntimeException("상품명이 비어있습니다.");
+        // 상품코드 (필수)
+        String productCode = getCellStringValue(row.getCell(0));
+        if (productCode == null || productCode.trim().isEmpty()) {
+            throw new RuntimeException("상품코드가 비어있습니다.");
         }
-        dto.setProductName(productName.trim());
+        dto.setProductCode(productCode.trim());
 
-        // 카테고리명 (필수)
-        String categoryName = getCellStringValue(row.getCell(1));
-        if (categoryName == null || categoryName.trim().isEmpty()) {
-            throw new RuntimeException("카테고리명이 비어있습니다.");
-        }
-        dto.setCategoryName(categoryName.trim());
+        // 상품명 (참조용, 선택사항)
+        String productName = getCellStringValue(row.getCell(1));
+        dto.setProductName(productName != null ? productName.trim() : "");
 
         // 입고수량 (필수)
         Double quantity = getCellNumericValue(row.getCell(2));

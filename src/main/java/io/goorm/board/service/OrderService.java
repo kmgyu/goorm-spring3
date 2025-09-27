@@ -193,6 +193,9 @@ public class OrderService {
             inventoryService.consumeStock(item.getProductSeq(), item.getQuantity());
         });
 
+        // 출고 이력 기록 (신규 추가)
+        inventoryService.recordOrderConsumption(order, user.getUserSeq(), user.getEmail());
+
         log.info("배송 완료 및 인보이스 확정 완료 - 주문: {}, 사용자: {}, 입금예정일: {}",
                 orderSeq, user.getEmail(), order.getPaymentDueDate());
 
