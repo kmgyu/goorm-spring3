@@ -236,7 +236,7 @@ public class InventoryService {
                     .processedAt(LocalDateTime.now())
                     .build();
 
-            inventoryTransactionMapper.insert(transaction);
+            inventoryTransactionMapper.update(transaction);
 
             log.debug("출고 이력 기록 완료 - 주문: {}, 상품: {}, 수량: {} (이력ID: {})",
                     order.getOrderNumber(), item.getProductSeq(), item.getQuantity(),
