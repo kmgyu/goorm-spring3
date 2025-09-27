@@ -101,7 +101,7 @@ public class ProductController {
             ProductDto savedProduct = productService.create(createDto);
             String message = messageSource.getMessage("product.message.create.success", null, localeResolver.resolveLocale(request));
             redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/products/" + savedProduct.getProductSeq();
+            return "redirect:/admin/products/" + savedProduct.getProductSeq();
         } catch (Exception e) {
             log.error("상품 등록 실패", e);
             model.addAttribute("errorMessage", e.getMessage());
