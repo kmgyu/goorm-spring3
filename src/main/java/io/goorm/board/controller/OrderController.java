@@ -122,7 +122,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderSeq}/invoice")
-    @PreAuthorize("hasRole('BUYER')")
+    @PreAuthorize("hasAnyRole('BUYER', 'ADMIN')")
     public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long orderSeq,
                                                  @AuthenticationPrincipal User user) {
         try {
