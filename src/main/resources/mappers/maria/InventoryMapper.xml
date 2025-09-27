@@ -135,4 +135,34 @@
         AND current_stock >= #{quantity}
     </update>
 
+    <!-- 재고 증가 (입고 처리 시) -->
+    <update id="increaseStock">
+        UPDATE inventory
+        SET current_stock = current_stock + #{quantity},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE product_seq = #{productSeq}
+        AND location = 'MAIN_WAREHOUSE'
+    </update>
+
+    <!-- 신규 재고 생성 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.Inventory">
+        INSERT INTO inventory (
+            product_seq, location, current_stock, reserved_stock,
+            min_stock_level, max_stock_level, reorder_point,
+            created_at, updated_at, created_seq, updated_seq
+        ) VALUES (
+            #{productSeq},
+            COALESCE(#{location}, 'MAIN_WAREHOUSE'),
+            #{currentStock},
+            COALESCE(#{reservedStock}, 0),
+            #{minStockLevel},
+            #{maxStockLevel},
+            #{reorderPoint},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP,
+            #{createdSeq},
+            #{updatedSeq}
+        )
+    </insert>
+
 </mapper>
