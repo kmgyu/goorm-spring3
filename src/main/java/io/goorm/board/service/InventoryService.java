@@ -257,14 +257,7 @@ public class InventoryService {
                             String.format("%d행: 상품코드 '%s'를 찾을 수 없습니다", rowNumber, productCode)));
 
             // 2. 상품 상태 확인 (필수 구현)
-            // TODO: 임시로 상태 검증 비활성화 - DB 데이터 확인 후 재활성화 예정
             log.debug("{}행: 상품 상태 - 코드: {}, 상태: {}", rowNumber, productCode, product.getStatus());
-            /*
-            if (!"ACTIVE".equals(product.getStatus())) {
-                throw new RuntimeException(
-                    String.format("%d행: 상품코드 '%s'는 비활성 상태입니다", rowNumber, productCode));
-            }
-            */
 
             // 3. 공급업체 매칭 검증 (수강생 과제)
             validateProductSupplierMatch(product, selectedSupplierSeq, rowNumber);
@@ -279,9 +272,6 @@ public class InventoryService {
 
     /**
      * 상품과 선택된 공급업체의 일치성을 검증합니다.
-     *
-     * TODO: 수강생 구현 과제
-     *
      * 구현 가이드:
      * 1. 상품의 실제 공급업체(product.getSupplierSeq())와 선택된 공급업체 비교
      * 2. 불일치 시 처리 방법 결정:

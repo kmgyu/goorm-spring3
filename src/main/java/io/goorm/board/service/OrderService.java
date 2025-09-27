@@ -37,6 +37,7 @@ public class OrderService {
     private final ProductMapper productMapper;
     private final InventoryService inventoryService;
     private final DiscountService discountService;
+    private final InvoiceService invoiceService;
 
     @Transactional(rollbackFor = Exception.class)
     @LogExecution(operation = "CREATE_ORDER", resource = "ORDER")
@@ -234,25 +235,6 @@ public class OrderService {
         log.info("입금 완료 처리됨 - 주문: {}, 사용자: {}", orderSeq, user.getEmail());
 
         return convertToDto(orderMapper.findById(orderSeq).orElseThrow());
-    }
-
-    /**
-     * 인보이스 PDF 생성
-     */
-    private void generateInvoice(Long orderSeq) {
-        try {
-            // TODO: PDF 생성 로직 구현
-            // 1. 주문 정보 조회
-            // 2. 회사 정보 조회
-            // 3. 주문 항목 조회
-            // 4. PDF 템플릿으로 인보이스 생성
-            // 5. 파일 저장 또는 이메일 발송
-
-            log.info("인보이스 생성 완료 - 주문: {}", orderSeq);
-        } catch (Exception e) {
-            log.error("인보이스 생성 실패 - 주문: {}, 오류: {}", orderSeq, e.getMessage());
-            // 인보이스 생성 실패해도 배송 완료 처리는 계속 진행
-        }
     }
 
     private BigDecimal calculateTotalAmount(OrderCreateDto createDto) {
