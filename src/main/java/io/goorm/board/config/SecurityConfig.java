@@ -29,6 +29,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
+                .requestMatchers("/buyer/orders/*/invoice").hasAnyRole(UserRole.ADMIN.name(), UserRole.BUYER.name())
                 .requestMatchers("/buyer/**").hasRole(UserRole.BUYER.name())
                 .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
                 .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.*").permitAll()
