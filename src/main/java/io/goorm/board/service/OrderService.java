@@ -37,7 +37,6 @@ public class OrderService {
     private final ProductMapper productMapper;
     private final InventoryService inventoryService;
     private final DiscountService discountService;
-    private final InvoiceService invoiceService;
 
     @Transactional(rollbackFor = Exception.class)
     @LogExecution(operation = "CREATE_ORDER", resource = "ORDER")
