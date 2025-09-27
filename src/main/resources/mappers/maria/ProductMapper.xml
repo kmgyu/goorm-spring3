@@ -81,7 +81,7 @@
         <include refid="productColumns"/>,
         c.name as category_name,
         s.name as supplier_name,
-        COALESCE(i.available_stock, 0) as available_stock
+        COALESCE((i.current_stock - i.reserved_stock), 0) as available_stock
     </sql>
 
     <!-- 검색 조건 -->
@@ -203,9 +203,9 @@
     <select id="findDtoById" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN inventory i ON p.product_seq = i.product_seq
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
-        LEFT JOIN inventory i ON i.product_seq = p.product_seq
         WHERE p.product_seq = #{productSeq}
     </select>
 
@@ -213,9 +213,9 @@
     <select id="findAll" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN inventory i ON p.product_seq = i.product_seq
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
-        LEFT JOIN inventory i ON i.product_seq = p.product_seq
         <include refid="searchConditions"/>
         <include refid="orderBy"/>
         LIMIT #{search.offset}, #{search.size}
@@ -262,7 +262,6 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
-        LEFT JOIN inventory i ON i.product_seq = p.product_seq
         WHERE p.status = #{status}
         ORDER BY p.created_at DESC
     </select>
@@ -284,9 +283,19 @@
         FROM products p
         LEFT JOIN categories c ON p.category_seq = c.category_seq
         LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
-        LEFT JOIN inventory i ON i.product_seq = p.product_seq
         ORDER BY p.created_at DESC
         LIMIT #{limit}
+    </select>
+
+    <!-- 상품명과 카테고리명으로 상품 조회 (엑셀 입고용) -->
+    <select id="findByNameAndCategory" resultMap="productResultMap">
+        SELECT p.*
+        FROM products p
+        LEFT JOIN categories c ON p.category_seq = c.category_seq
+        WHERE p.name = #{productName}
+          AND c.name = #{categoryName}
+          AND p.status = 'ACTIVE'
+        LIMIT 1
     </select>
 
 </mapper>

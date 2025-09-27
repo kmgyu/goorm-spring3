@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>입출고 이력</title>
+</head>
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">입출고 이력</h1>
+                    <p class="mt-2 text-sm text-gray-600">모든 재고 거래 이력을 조회합니다.</p>
+                </div>
+                <a th:href="@{/admin/inventory}"
+                   class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm">
+                    ← 재고관리 메인
+                </a>
+            </div>
+        </div>
+
+        <!-- 오류 메시지 -->
+        <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">오류</h3>
+                    <div class="mt-2 text-sm text-red-700" th:text="${errorMessage}">오류 메시지</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 통계 정보 -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">전체 이력</h3>
+                    <p class="text-3xl font-bold text-blue-600" th:text="${totalCount != null ? totalCount : 0}">0</p>
+                    <p class="text-sm text-gray-500">총 거래 건수</p>
+                </div>
+                <div class="text-blue-500">
+                    <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이력 목록 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">거래 이력 목록</h3>
+            </div>
+
+            <!-- 데이터가 없는 경우 -->
+            <div th:if="${transactions == null || #lists.isEmpty(transactions)}" class="px-6 py-12 text-center">
+                <div class="text-gray-400">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">거래 이력이 없습니다</h3>
+                    <p class="mt-1 text-sm text-gray-500">아직 입출고 처리된 내역이 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 데이터가 있는 경우 -->
+            <div th:if="${transactions != null && !#lists.isEmpty(transactions)}" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">거래유형</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상품정보</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수량</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">단가</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">총액</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">처리자</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">처리일시</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">비고</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="transaction : ${transactions}" class="hover:bg-gray-50">
+                            <!-- 거래유형 -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span th:if="${transaction.transactionType?.name() == 'RECEIVING'}"
+                                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    입고
+                                </span>
+                                <span th:if="${transaction.transactionType?.name() == 'ORDER_CONSUMED'}"
+                                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    출고
+                                </span>
+                                <span th:unless="${transaction.transactionType?.name() == 'RECEIVING' or transaction.transactionType?.name() == 'ORDER_CONSUMED'}"
+                                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <span th:text="${transaction.transactionType?.description ?: '알수없음'}">알수없음</span>
+                                </span>
+                            </td>
+
+                            <!-- 상품정보 -->
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900" th:text="${transaction.productName ?: '상품정보없음'}">상품명</div>
+                                <div class="text-sm text-gray-500" th:text="${transaction.categoryName ?: ''}">카테고리</div>
+                                <div class="text-sm text-gray-500" th:text="${transaction.productCode ?: ''}">상품코드</div>
+                            </td>
+
+                            <!-- 수량 -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium"
+                                     th:classappend="${transaction.quantity != null && transaction.quantity < 0} ? 'text-red-600' : 'text-blue-600'">
+                                    <span th:text="${transaction.quantity != null ? #numbers.formatInteger(transaction.quantity, 0, 'COMMA') : 0}">0</span>
+                                </div>
+                            </td>
+
+                            <!-- 단가 -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    <span th:text="${transaction.unitPrice != null ? #numbers.formatDecimal(transaction.unitPrice, 0, 'COMMA', 0, 'POINT') + '원' : '-'}">0원</span>
+                                </div>
+                            </td>
+
+                            <!-- 총액 -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium"
+                                     th:classappend="${transaction.totalAmount != null && transaction.totalAmount.doubleValue() < 0} ? 'text-red-600' : 'text-blue-600'">
+                                    <span th:text="${transaction.totalAmount != null ? #numbers.formatDecimal(transaction.totalAmount, 0, 'COMMA', 0, 'POINT') + '원' : '-'}">0원</span>
+                                </div>
+                            </td>
+
+                            <!-- 처리자 -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900" th:text="${transaction.processedByName ?: ''}">처리자명</div>
+                                <div class="text-sm text-gray-500" th:text="${transaction.processedByEmail ?: ''}">이메일</div>
+                            </td>
+
+                            <!-- 처리일시 -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900" th:text="${transaction.processedAt != null ? #temporals.format(transaction.processedAt, 'yyyy-MM-dd') : ''}">2024-01-01</div>
+                                <div class="text-sm text-gray-500" th:text="${transaction.processedAt != null ? #temporals.format(transaction.processedAt, 'HH:mm:ss') : ''}">12:00:00</div>
+                            </td>
+
+                            <!-- 비고 -->
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">
+                                    <!-- 주문번호 표시 (출고인 경우) -->
+                                    <div th:if="${transaction.orderNumber != null}" class="mb-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
+                                            <span th:text="'주문: ' + ${transaction.orderNumber}">주문: ORDER001</span>
+                                        </span>
+                                    </div>
+                                    <!-- 엑셀파일명 표시 (입고인 경우) -->
+                                    <div th:if="${transaction.excelFilename != null}" class="mb-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+                                            <span th:text="'파일: ' + ${transaction.excelFilename}">파일: stock.xlsx</span>
+                                        </span>
+                                        <div th:if="${transaction.excelRowNum != null}" class="text-xs text-gray-500 mt-1">
+                                            <span th:text="${transaction.excelRowNum} + '행'">1행</span>
+                                        </div>
+                                    </div>
+                                    <!-- 일반 비고 -->
+                                    <div th:if="${transaction.note != null and transaction.note != ''}" class="text-sm text-gray-700" th:text="${transaction.note}">비고</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 페이지 하단 정보 -->
+        <div class="mt-8 bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center text-sm text-gray-600">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <span>최신 순으로 정렬되어 표시됩니다. 양수는 입고, 음수는 출고를 의미합니다.</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

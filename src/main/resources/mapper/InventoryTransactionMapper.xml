@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.goorm.board.mapper.InventoryTransactionMapper">
+
+    <!-- 결과 매핑 -->
+    <resultMap id="inventoryTransactionResultMap" type="io.goorm.board.entity.InventoryTransaction">
+        <id property="transactionSeq" column="transaction_seq"/>
+        <result property="transactionType" column="transaction_type"/>
+        <result property="productSeq" column="product_seq"/>
+        <result property="categorySeq" column="category_seq"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="note" column="note"/>
+        <result property="processedBySeq" column="processed_by_seq"/>
+
+        <!-- 입고 관련 필드 -->
+        <result property="excelFilename" column="excel_filename"/>
+        <result property="excelFilepath" column="excel_filepath"/>
+        <result property="excelRowNum" column="excel_row_num"/>
+
+        <!-- 출고 관련 필드 -->
+        <result property="orderSeq" column="order_seq"/>
+
+        <result property="processedAt" column="processed_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+        <!-- 조인된 데이터 -->
+        <result property="productName" column="product_name"/>
+        <result property="productCode" column="product_code"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="processedByName" column="processed_by_name"/>
+        <result property="processedByEmail" column="processed_by_email"/>
+        <result property="orderNumber" column="order_number"/>
+    </resultMap>
+
+    <!-- 거래 이력 등록 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.InventoryTransaction" useGeneratedKeys="true" keyProperty="transactionSeq">
+        INSERT INTO inventory_transaction (
+            transaction_type, product_seq, category_seq, quantity, unit_price, total_amount, note,
+            processed_by_seq,
+            <if test="excelFilename != null">excel_filename,</if>
+            <if test="excelFilepath != null">excel_filepath,</if>
+            <if test="excelRowNum != null">excel_row_num,</if>
+            <if test="orderSeq != null">order_seq,</if>
+            processed_at
+        ) VALUES (
+            #{transactionType}, #{productSeq}, #{categorySeq}, #{quantity}, #{unitPrice}, #{totalAmount}, #{note},
+            #{processedBySeq},
+            <if test="excelFilename != null">#{excelFilename},</if>
+            <if test="excelFilepath != null">#{excelFilepath},</if>
+            <if test="excelRowNum != null">#{excelRowNum},</if>
+            <if test="orderSeq != null">#{orderSeq},</if>
+            #{processedAt}
+        )
+    </insert>
+
+    <!-- 거래 이력 조회 (상세) -->
+    <select id="findBySeq" resultMap="inventoryTransactionResultMap">
+        SELECT
+            it.transaction_seq, it.transaction_type, it.product_seq, it.category_seq, it.quantity,
+            it.unit_price, it.total_amount, it.note, it.processed_by_seq,
+            it.excel_filename, it.excel_filepath, it.excel_row_num, it.order_seq,
+            it.processed_at, it.created_at, it.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email,
+            o.order_number
+        FROM inventory_transaction it
+        LEFT JOIN products p ON it.product_seq = p.product_seq
+        LEFT JOIN categories c ON it.category_seq = c.category_seq
+        LEFT JOIN users u ON it.processed_by_seq = u.user_seq
+        LEFT JOIN orders o ON it.order_seq = o.order_seq
+        WHERE it.transaction_seq = #{transactionSeq}
+    </select>
+
+    <!-- 거래 이력 목록 조회 (검색 조건 포함) -->
+    <select id="findAll" resultMap="inventoryTransactionResultMap">
+        SELECT
+            it.transaction_seq, it.transaction_type, it.product_seq, it.category_seq, it.quantity,
+            it.unit_price, it.total_amount, it.note, it.processed_by_seq,
+            it.excel_filename, it.excel_filepath, it.excel_row_num, it.order_seq,
+            it.processed_at, it.created_at, it.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email,
+            o.order_number
+        FROM inventory_transaction it
+        LEFT JOIN products p ON it.product_seq = p.product_seq
+        LEFT JOIN categories c ON it.category_seq = c.category_seq
+        LEFT JOIN users u ON it.processed_by_seq = u.user_seq
+        LEFT JOIN orders o ON it.order_seq = o.order_seq
+        <where>
+            <if test="searchDto.transactionType != null">
+                AND it.transaction_type = #{searchDto.transactionType}
+            </if>
+            <if test="searchDto.productSeq != null">
+                AND it.product_seq = #{searchDto.productSeq}
+            </if>
+            <if test="searchDto.categorySeq != null">
+                AND it.category_seq = #{searchDto.categorySeq}
+            </if>
+            <if test="searchDto.processedBySeq != null">
+                AND it.processed_by_seq = #{searchDto.processedBySeq}
+            </if>
+            <if test="searchDto.startDate != null">
+                AND it.processed_at >= #{searchDto.startDate}
+            </if>
+            <if test="searchDto.endDate != null">
+                AND it.processed_at <= #{searchDto.endDate}
+            </if>
+        </where>
+        ORDER BY it.processed_at DESC
+        <if test="searchDto.limit != null and searchDto.offset != null">
+            LIMIT #{searchDto.limit} OFFSET #{searchDto.offset}
+        </if>
+    </select>
+
+    <!-- 거래 이력 총 개수 -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM inventory_transaction it
+        <where>
+            <if test="searchDto.transactionType != null">
+                AND it.transaction_type = #{searchDto.transactionType}
+            </if>
+            <if test="searchDto.productSeq != null">
+                AND it.product_seq = #{searchDto.productSeq}
+            </if>
+            <if test="searchDto.categorySeq != null">
+                AND it.category_seq = #{searchDto.categorySeq}
+            </if>
+            <if test="searchDto.processedBySeq != null">
+                AND it.processed_by_seq = #{searchDto.processedBySeq}
+            </if>
+            <if test="searchDto.startDate != null">
+                AND it.processed_at >= #{searchDto.startDate}
+            </if>
+            <if test="searchDto.endDate != null">
+                AND it.processed_at <= #{searchDto.endDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- 거래 유형별 이력 조회 -->
+    <select id="findByTransactionType" resultMap="inventoryTransactionResultMap">
+        SELECT
+            it.transaction_seq, it.transaction_type, it.product_seq, it.category_seq, it.quantity,
+            it.unit_price, it.total_amount, it.note, it.processed_by_seq,
+            it.excel_filename, it.excel_filepath, it.excel_row_num, it.order_seq,
+            it.processed_at, it.created_at, it.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email,
+            o.order_number
+        FROM inventory_transaction it
+        LEFT JOIN products p ON it.product_seq = p.product_seq
+        LEFT JOIN categories c ON it.category_seq = c.category_seq
+        LEFT JOIN users u ON it.processed_by_seq = u.user_seq
+        LEFT JOIN orders o ON it.order_seq = o.order_seq
+        WHERE it.transaction_type = #{transactionType}
+        ORDER BY it.processed_at DESC
+    </select>
+
+    <!-- 특정 상품의 거래 이력 조회 -->
+    <select id="findByProductSeq" resultMap="inventoryTransactionResultMap">
+        SELECT
+            it.transaction_seq, it.transaction_type, it.product_seq, it.category_seq, it.quantity,
+            it.unit_price, it.total_amount, it.note, it.processed_by_seq,
+            it.excel_filename, it.excel_filepath, it.excel_row_num, it.order_seq,
+            it.processed_at, it.created_at, it.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email,
+            o.order_number
+        FROM inventory_transaction it
+        LEFT JOIN products p ON it.product_seq = p.product_seq
+        LEFT JOIN categories c ON it.category_seq = c.category_seq
+        LEFT JOIN users u ON it.processed_by_seq = u.user_seq
+        LEFT JOIN orders o ON it.order_seq = o.order_seq
+        WHERE it.product_seq = #{productSeq}
+        ORDER BY it.processed_at DESC
+    </select>
+
+    <!-- 특정 주문의 출고 이력 조회 -->
+    <select id="findByOrderSeq" resultMap="inventoryTransactionResultMap">
+        SELECT
+            it.transaction_seq, it.transaction_type, it.product_seq, it.category_seq, it.quantity,
+            it.unit_price, it.total_amount, it.note, it.processed_by_seq,
+            it.excel_filename, it.excel_filepath, it.excel_row_num, it.order_seq,
+            it.processed_at, it.created_at, it.updated_at,
+            p.name AS product_name, p.code AS product_code,
+            c.name AS category_name,
+            u.name AS processed_by_name, u.email AS processed_by_email,
+            o.order_number
+        FROM inventory_transaction it
+        LEFT JOIN products p ON it.product_seq = p.product_seq
+        LEFT JOIN categories c ON it.category_seq = c.category_seq
+        LEFT JOIN users u ON it.processed_by_seq = u.user_seq
+        LEFT JOIN orders o ON it.order_seq = o.order_seq
+        WHERE it.order_seq = #{orderSeq}
+        ORDER BY it.processed_at DESC
+    </select>
+
+    <!-- 거래 이력 수정 -->
+    <update id="update">
+        UPDATE inventory_transaction
+        SET
+            quantity = #{quantity},
+            unit_price = #{unitPrice},
+            total_amount = #{totalAmount},
+            note = #{note},
+            updated_at = NOW()
+        WHERE transaction_seq = #{transactionSeq}
+    </update>
+
+    <!-- 거래 이력 삭제 -->
+    <delete id="deleteBySeq">
+        DELETE FROM inventory_transaction
+        WHERE transaction_seq = #{transactionSeq}
+    </delete>
+
+</mapper>

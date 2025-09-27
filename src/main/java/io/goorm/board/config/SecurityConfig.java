@@ -27,15 +27,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-
-            // 세션 관리 정책 : STATELESS
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
+                .requestMatchers("/buyer/orders/*/invoice").hasAnyRole(UserRole.ADMIN.name(), UserRole.BUYER.name())
                 .requestMatchers("/buyer/**").hasRole(UserRole.BUYER.name())
                 .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
                 .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.*").permitAll()
-                .requestMatchers("/posts/[0-9]+").permitAll()
+                .requestMatchers("/posts/[0-9]+", "/error/**").permitAll()
                 .requestMatchers("/posts/new", "/posts/*/edit", "/posts/*/delete").authenticated()
                 .requestMatchers("/auth/profile").authenticated()
                 .anyRequest().authenticated()

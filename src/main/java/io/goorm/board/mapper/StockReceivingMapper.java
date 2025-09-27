@@ -1,7 +1,7 @@
 package io.goorm.board.mapper;
 
-import io.goorm.board.dto.stockreceiving.StockReceivingSearchDto;
-import io.goorm.board.entity.StockReceiving;
+import io.goorm.board.dto.inventory.InventoryTransactionSearchDto;
+import io.goorm.board.entity.InventoryTransaction;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,48 +17,48 @@ public interface StockReceivingMapper {
     /**
      * 입고 이력 등록
      */
-    int insert(StockReceiving stockReceiving);
+    int insert(InventoryTransaction inventoryTransaction);
 
     /**
      * 입고 이력 조회 (상세)
      */
-    StockReceiving findBySeq(@Param("receivingSeq") Long receivingSeq);
+    InventoryTransaction findBySeq(@Param("receivingSeq") Long receivingSeq);
 
     /**
      * 입고 이력 목록 조회 (검색 조건 포함)
      */
-    List<StockReceiving> findAll(@Param("searchDto") StockReceivingSearchDto searchDto);
+    List<InventoryTransaction> findAll(@Param("searchDto") InventoryTransactionSearchDto searchDto);
 
     /**
      * 입고 이력 총 개수 (검색 조건 포함)
      */
-    int countAll(@Param("searchDto") StockReceivingSearchDto searchDto);
+    int countAll(@Param("searchDto") InventoryTransactionSearchDto searchDto);
 
     /**
      * 특정 상품의 입고 이력 조회
      */
-    List<StockReceiving> findByProductSeq(@Param("productSeq") Long productSeq);
+    List<InventoryTransaction> findByProductSeq(@Param("productSeq") Long productSeq);
 
     /**
      * 특정 처리자의 입고 이력 조회
      */
-    List<StockReceiving> findByProcessedBySeq(@Param("processedBySeq") Long processedBySeq);
+    List<InventoryTransaction> findByProcessedBySeq(@Param("processedBySeq") Long processedBySeq);
 
     /**
      * 기간별 입고 이력 조회
      */
-    List<StockReceiving> findByPeriod(@Param("startDate") LocalDateTime startDate,
-                                     @Param("endDate") LocalDateTime endDate);
+    List<InventoryTransaction> findByPeriod(@Param("startDate") LocalDateTime startDate,
+                                            @Param("endDate") LocalDateTime endDate);
 
     /**
      * 특정 엑셀 파일의 입고 이력 조회
      */
-    List<StockReceiving> findByExcelFilename(@Param("excelFilename") String excelFilename);
+    List<InventoryTransaction> findByExcelFilename(@Param("excelFilename") String excelFilename);
 
     /**
      * 입고 이력 수정
      */
-    int update(StockReceiving stockReceiving);
+    int update(InventoryTransaction inventoryTransaction);
 
     /**
      * 입고 이력 삭제

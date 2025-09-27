@@ -1,15 +1,10 @@
 package io.goorm.board.service;
 
-import io.goorm.board.dto.order.OrderCreateDto;
-import io.goorm.board.dto.order.OrderDto;
-import io.goorm.board.dto.order.OrderItemCreateDto;
-import io.goorm.board.dto.order.OrderProductSelectionDto;
-import io.goorm.board.dto.order.OrderSearchDto;
+import io.goorm.board.dto.order.*;
 import io.goorm.board.entity.Order;
 import io.goorm.board.entity.OrderItem;
 import io.goorm.board.entity.Product;
 import io.goorm.board.entity.User;
-import io.goorm.board.exception.InsufficientStockException;
 import io.goorm.board.exception.OrderItemsNotSelectedException;
 import io.goorm.board.exception.OrderNotFoundException;
 import io.goorm.board.exception.InvalidUserRoleException;
@@ -193,6 +188,9 @@ public class OrderService {
             inventoryService.consumeStock(item.getProductSeq(), item.getQuantity());
         });
 
+        // 출고 이력 기록 (신규 추가)
+        inventoryService.recordOrderConsumption(order, user.getUserSeq(), user.getEmail());
+
         log.info("배송 완료 및 인보이스 확정 완료 - 주문: {}, 사용자: {}, 입금예정일: {}",
                 orderSeq, user.getEmail(), order.getPaymentDueDate());
 
@@ -289,8 +287,8 @@ public class OrderService {
                 .build();
     }
 
-    private io.goorm.board.dto.order.OrderItemDto convertToItemDto(OrderItem orderItem) {
-        return io.goorm.board.dto.order.OrderItemDto.builder()
+    private OrderItemDto convertToItemDto(OrderItem orderItem) {
+        return OrderItemDto.builder()
                 .orderItemSeq(orderItem.getOrderItemSeq())
                 .orderSeq(orderItem.getOrderSeq())
                 .productSeq(orderItem.getProductSeq())

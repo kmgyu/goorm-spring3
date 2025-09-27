@@ -1,5 +1,6 @@
-package io.goorm.board.dto.stockreceiving;
+package io.goorm.board.dto.inventory;
 
+import io.goorm.board.enums.TransactionType;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -8,10 +9,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
- * 입고 이력 검색 DTO
+ * 재고 거래 이력 검색 DTO
  */
 @Data
-public class StockReceivingSearchDto {
+public class InventoryTransactionSearchDto {
 
     // 기본 검색 조건
     private String keyword;                 // 검색 키워드 (상품명, 상품코드, 처리자명 등)
@@ -19,6 +20,7 @@ public class StockReceivingSearchDto {
     private Long categorySeq;              // 카테고리 시퀀스
     private Long processedBySeq;           // 처리자 시퀀스
     private String excelFilename;          // 엑셀 파일명
+    private TransactionType transactionType;
 
     // 날짜 검색
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -62,11 +64,11 @@ public class StockReceivingSearchDto {
      */
     public boolean hasSearchCondition() {
         return (keyword != null && !keyword.trim().isEmpty()) ||
-               productSeq != null ||
-               categorySeq != null ||
-               processedBySeq != null ||
-               (excelFilename != null && !excelFilename.trim().isEmpty()) ||
-               startDate != null ||
-               endDate != null;
+                productSeq != null ||
+                categorySeq != null ||
+                processedBySeq != null ||
+                (excelFilename != null && !excelFilename.trim().isEmpty()) ||
+                startDate != null ||
+                endDate != null;
     }
 }

@@ -11,7 +11,8 @@
         <div class="mb-8">
             <div class="flex justify-between items-center">
                 <h1 class="text-3xl font-bold text-gray-900">주문 상세 정보</h1>
-                <a th:href="@{/buyer/orders}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">목록으로</a>
+                <a th:href="${#authorization.expression('hasRole(''ADMIN'')')} ? @{/admin/orders} : @{/buyer/orders}"
+                   class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">목록으로</a>
             </div>
         </div>
 

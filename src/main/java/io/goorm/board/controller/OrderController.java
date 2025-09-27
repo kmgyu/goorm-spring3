@@ -6,6 +6,7 @@ import io.goorm.board.dto.order.OrderSearchDto;
 import io.goorm.board.entity.User;
 import io.goorm.board.enums.DeliveryStatus;
 import io.goorm.board.enums.PaymentStatus;
+import io.goorm.board.enums.UserRole;
 import io.goorm.board.service.OrderService;
 import io.goorm.board.service.ProductService;
 import io.goorm.board.service.DiscountService;
@@ -122,15 +123,20 @@ public class OrderController {
     }
 
     @GetMapping("/{orderSeq}/invoice")
-    @PreAuthorize("hasRole('BUYER')")
+//    @PreAuthorize("hasAnyRole('BUYER', 'ADMIN')")
     public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long orderSeq,
                                                  @AuthenticationPrincipal User user) {
         try {
             log.info("인보이스 다운로드 요청 - OrderSeq: {}, User: {}", orderSeq, user.getEmail());
 
+            // 권한 확인
+            boolean isAdmin = user.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals(UserRole.ADMIN.getAuthority()));
+
             // 주문 정보 확인 (본인 회사 주문인지 검증)
             OrderDto order = orderService.findById(orderSeq);
-            if (!order.getCompanySeq().equals(user.getCompanySeq())) {
+
+            if (!isAdmin && !order.getCompanySeq().equals(user.getCompanySeq())) {
                 log.warn("권한 없는 인보이스 다운로드 시도 - OrderSeq: {}, UserCompany: {}, OrderCompany: {}",
                         orderSeq, user.getCompanySeq(), order.getCompanySeq());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

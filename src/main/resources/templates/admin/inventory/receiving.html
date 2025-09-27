@@ -3,181 +3,250 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <title>입고 처리 - 관리자</title>
+    <title>입고 처리</title>
 </head>
 <body>
-<main layout:fragment="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">엑셀 입고 처리</h3>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">엑셀 입고 처리</h1>
+                    <p class="mt-2 text-sm text-gray-600">엑셀 파일로 재고 입고를 처리합니다.</p>
+                </div>
+                <a th:href="@{/admin/inventory}"
+                   class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm">
+                    ← 재고관리 메인
+                </a>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <!-- 알림 메시지 -->
+            <div th:if="${successMessage}" class="bg-green-50 border border-green-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
                     </div>
-                    <div class="card-body">
-                        <!-- 알림 메시지 -->
-                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <span th:text="${successMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">성공</h3>
+                        <div class="mt-2 text-sm text-green-700" th:text="${successMessage}">성공 메시지</div>
+                    </div>
+                </div>
+            </div>
 
-                        <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <span th:text="${warningMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div th:if="${warningMessage}" class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">경고</h3>
+                        <div class="mt-2 text-sm text-yellow-700" th:text="${warningMessage}">경고 메시지</div>
 
-                            <!-- 오류 상세 내역 -->
-                            <div th:if="${errorDetails}" class="mt-3">
-                                <h6>오류 상세:</h6>
-                                <ul class="mb-0">
-                                    <li th:each="error : ${errorDetails}" th:text="${error}" class="text-danger"></li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-times-circle me-2"></i>
-                            <span th:text="${errorMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-
-                        <!-- 템플릿 다운로드 섹션 -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <i class="fas fa-download me-2"></i>엑셀 템플릿 다운로드
-                                        </h5>
-                                        <p class="card-text text-muted">
-                                            입고 처리를 위한 엑셀 템플릿을 다운로드하세요.
-                                            테스트용 샘플 데이터가 포함된 파일로 바로 테스트해볼 수 있습니다.
-                                        </p>
-                                        <div class="btn-group" role="group">
-                                            <a href="/admin/inventory/template/download"
-                                               class="btn btn-outline-primary">
-                                                <i class="fas fa-file-excel me-1"></i>빈 템플릿 다운로드
-                                            </a>
-                                            <a href="/admin/inventory/template/download?type=sample"
-                                               class="btn btn-primary">
-                                                <i class="fas fa-file-excel me-1"></i>테스트용 샘플 다운로드
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 파일 업로드 폼 -->
-                        <form th:action="@{/admin/inventory/receiving/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="mb-3">
-                                        <label for="file" class="form-label">엑셀 파일 선택</label>
-                                        <input type="file" class="form-control" id="file" name="file"
-                                               accept=".xlsx,.xls" required>
-                                        <div class="form-text">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            .xlsx 또는 .xls 파일만 업로드 가능합니다. (최대 10MB)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-success w-100" id="uploadBtn">
-                                        <i class="fas fa-upload me-2"></i>입고 처리
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-
-                        <!-- 사용법 안내 -->
-                        <div class="mt-4">
-                            <div class="card border-info">
-                                <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0"><i class="fas fa-question-circle me-2"></i>사용 방법</h6>
-                                </div>
-                                <div class="card-body">
-                                    <ol class="mb-0">
-                                        <li><strong>템플릿 다운로드</strong>: 위의 "테스트용 샘플 다운로드" 버튼을 클릭하여 완성된 샘플 파일을 받으세요.</li>
-                                        <li><strong>데이터 확인</strong>: 다운로드한 엑셀 파일을 열어서 데이터 형식을 확인하세요.</li>
-                                        <li><strong>데이터 수정</strong>: 필요에 따라 상품명, 카테고리명, 수량, 단가를 수정하세요.</li>
-                                        <li><strong>파일 업로드</strong>: 수정한 엑셀 파일을 선택하고 "입고 처리" 버튼을 클릭하세요.</li>
-                                        <li><strong>결과 확인</strong>: 처리 결과를 확인하고, 오류가 있다면 해당 행을 수정 후 다시 업로드하세요.</li>
-                                    </ol>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 주의사항 -->
-                        <div class="mt-3">
-                            <div class="alert alert-info">
-                                <h6><i class="fas fa-exclamation-triangle me-2"></i>주의사항</h6>
-                                <ul class="mb-0">
-                                    <li>상품명과 카테고리명은 시스템에 등록된 것과 <strong>정확히 일치</strong>해야 합니다.</li>
-                                    <li>입고수량과 입고단가는 <strong>숫자</strong>만 입력 가능합니다.</li>
-                                    <li>첫 번째 행은 헤더이므로 <strong>삭제하지 마세요</strong>.</li>
-                                    <li>빈 행이 있으면 자동으로 건너뜁니다.</li>
-                                </ul>
-                            </div>
+                        <!-- 오류 상세 내역 -->
+                        <div th:if="${errorDetails}" class="mt-3">
+                            <h6 class="text-sm font-medium text-yellow-800">오류 상세:</h6>
+                            <ul class="mt-1 text-sm text-yellow-700 list-disc list-inside">
+                                <li th:each="error : ${errorDetails}" th:text="${error}">오류 항목</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- 업로드 진행 상태 모달 -->
-    <div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <div class="spinner-border text-primary mb-3" role="status"></div>
-                    <p class="mb-0">파일을 처리하고 있습니다...</p>
-                    <small class="text-muted">잠시만 기다려주세요.</small>
+            <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">오류</h3>
+                        <div class="mt-2 text-sm text-red-700" th:text="${errorMessage}">오류 메시지</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 템플릿 다운로드 섹션 -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <div class="flex items-center mb-4">
+                    <svg class="w-6 h-6 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 11-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-900">엑셀 템플릿 다운로드</h3>
+                </div>
+                <p class="text-gray-600 mb-4">
+                    입고 처리를 위한 엑셀 템플릿을 다운로드하세요.
+                    테스트용 샘플 데이터가 포함된 파일로 바로 테스트해볼 수 있습니다.
+                </p>
+                <div class="flex space-x-4">
+                    <a th:href="@{/admin/inventory/template/download}"
+                       class="bg-white border border-blue-300 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium">
+                        빈 템플릿 다운로드
+                    </a>
+                    <a th:href="@{/admin/inventory/template/download?type=sample}"
+                       class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium">
+                        테스트용 샘플 다운로드
+                    </a>
+                </div>
+            </div>
+
+            <!-- 파일 업로드 폼 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">파일 업로드</h3>
+                <form th:action="@{/admin/inventory/receiving/upload}" method="post" enctype="multipart/form-data" id="uploadForm">
+                    <div class="space-y-4">
+                        <!-- 공급업체 선택 -->
+                        <div>
+                            <label for="supplierSeq" class="block text-sm font-medium text-gray-700 mb-2">공급업체 선택 *</label>
+                            <select id="supplierSeq" name="supplierSeq" required
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option value="">공급업체를 선택하세요</option>
+                                <option th:each="supplier : ${suppliers}"
+                                        th:value="${supplier.supplierSeq}"
+                                        th:text="${supplier.name}">공급업체명</option>
+                            </select>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                                선택한 공급업체의 상품들만 입고 처리됩니다.
+                            </div>
+                        </div>
+
+                        <!-- 파일 선택 -->
+                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                            <div class="lg:col-span-3">
+                                <label for="file" class="block text-sm font-medium text-gray-700 mb-2">엑셀 파일 선택 *</label>
+                                <input type="file"
+                                       class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       id="file" name="file" accept=".xlsx,.xls" required>
+                                <div class="mt-2 text-sm text-gray-500">
+                                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    .xlsx 또는 .xls 파일만 업로드 가능합니다. (최대 10MB)
+                                </div>
+                            </div>
+                            <div class="lg:col-span-1 flex items-end">
+                                <button type="submit"
+                                        class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+                                        id="uploadBtn">
+                                    <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    입고 처리
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 사용법 안내 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div class="flex items-center mb-4">
+                    <svg class="w-6 h-6 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-blue-900">사용 방법</h3>
+                </div>
+                <ol class="text-blue-800 space-y-2 list-decimal list-inside">
+                    <li><strong>템플릿 다운로드</strong>: 위의 "테스트용 샘플 다운로드" 버튼을 클릭하여 완성된 샘플 파일을 받으세요.</li>
+                    <li><strong>데이터 확인</strong>: 다운로드한 엑셀 파일을 열어서 데이터 형식을 확인하세요.</li>
+                    <li><strong>데이터 수정</strong>: 필요에 따라 상품명, 카테고리명, 수량, 단가를 수정하세요.</li>
+                    <li><strong>파일 업로드</strong>: 수정한 엑셀 파일을 선택하고 "입고 처리" 버튼을 클릭하세요.</li>
+                    <li><strong>결과 확인</strong>: 처리 결과를 확인하고, 오류가 있다면 해당 행을 수정 후 다시 업로드하세요.</li>
+                </ol>
+            </div>
+
+            <!-- 주의사항 -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <div class="flex items-center mb-4">
+                    <svg class="w-6 h-6 text-yellow-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-yellow-900">주의사항</h3>
+                </div>
+                <ul class="text-yellow-800 space-y-1 list-disc list-inside">
+                    <li>상품명과 카테고리명은 시스템에 등록된 것과 <strong>정확히 일치</strong>해야 합니다.</li>
+                    <li>입고수량과 입고단가는 <strong>숫자</strong>만 입력 가능합니다.</li>
+                    <li>첫 번째 행은 헤더이므로 <strong>삭제하지 마세요</strong>.</li>
+                    <li>빈 행이 있으면 자동으로 건너뜁니다.</li>
+                </ul>
+            </div>
+
+        <!-- 업로드 진행 상태 모달 -->
+        <div id="uploadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                        <svg class="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">파일을 처리하고 있습니다...</h3>
+                    <p class="text-sm text-gray-500">잠시만 기다려주세요.</p>
                 </div>
             </div>
         </div>
+
+        <script>
+            document.getElementById('uploadForm').addEventListener('submit', function(e) {
+                const supplierSelect = document.getElementById('supplierSeq');
+                const fileInput = document.getElementById('file');
+                const file = fileInput.files[0];
+
+                // 공급업체 선택 확인
+                if (!supplierSelect.value) {
+                    e.preventDefault();
+                    alert('공급업체를 선택해주세요.');
+                    supplierSelect.focus();
+                    return;
+                }
+
+                // 파일 선택 확인
+                if (!file) {
+                    e.preventDefault();
+                    alert('파일을 선택해주세요.');
+                    fileInput.focus();
+                    return;
+                }
+
+                // 파일 크기 확인
+                if (file.size > 10 * 1024 * 1024) { // 10MB
+                    e.preventDefault();
+                    alert('파일 크기는 10MB 이하로 제한됩니다.');
+                    return;
+                }
+
+                // 파일 형식 확인
+                const allowedExtensions = /(\.xlsx|\.xls)$/i;
+                if (!allowedExtensions.exec(file.name)) {
+                    e.preventDefault();
+                    alert('Excel 파일(.xlsx, .xls)만 업로드 가능합니다.');
+                    return;
+                }
+
+                // 업로드 진행 모달 표시
+                document.getElementById('uploadModal').classList.remove('hidden');
+            });
+
+            // 파일 선택 시 파일명 표시
+            document.getElementById('file').addEventListener('change', function(e) {
+                const fileName = e.target.files[0]?.name;
+                if (fileName) {
+                    console.log('선택된 파일:', fileName);
+                }
+            });
+        </script>
     </div>
-
-    <script>
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            const fileInput = document.getElementById('file');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                e.preventDefault();
-                alert('파일을 선택해주세요.');
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) { // 10MB
-                e.preventDefault();
-                alert('파일 크기는 10MB 이하로 제한됩니다.');
-                return;
-            }
-
-            const allowedExtensions = /(\.xlsx|\.xls)$/i;
-            if (!allowedExtensions.exec(file.name)) {
-                e.preventDefault();
-                alert('Excel 파일(.xlsx, .xls)만 업로드 가능합니다.');
-                return;
-            }
-
-            // 업로드 진행 모달 표시
-            const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-            uploadModal.show();
-        });
-
-        // 파일 선택 시 파일명 표시
-        document.getElementById('file').addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name;
-            if (fileName) {
-                console.log('선택된 파일:', fileName);
-            }
-        });
-    </script>
-</main>
 </body>
 </html>
