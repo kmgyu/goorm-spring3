@@ -26,6 +26,7 @@ import java.util.Map;
 @RequestMapping("/api/responseentity/auth")
 @RequiredArgsConstructor
 public class ResponseEntityAuthController {
+    // todo : i18n message refactor
     private final MessageSource messageSource;
     private final LocaleResolver localeResolver;
 

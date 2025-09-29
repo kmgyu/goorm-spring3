@@ -6,9 +6,11 @@ import io.goorm.board.entity.User;
 import io.goorm.board.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +21,9 @@ import java.util.Map;
 @RequestMapping("/api/responseentity/post")
 public class ResponseEntityPostController {
   private final PostService postService;
+  // todo : i18n message refactor
+  private final MessageSource messageSource;
+  private final LocaleResolver localeResolver;
 
   @GetMapping
   public ResponseEntity<ApiResponse<List<Post>>> getAllPosts() {
