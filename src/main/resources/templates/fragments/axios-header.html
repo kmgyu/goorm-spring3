@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <header th:fragment="header" class="bg-blue-600 shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center">
+                    <a th:href="@{/axios/posts}" class="flex items-center text-white font-bold text-xl hover:text-blue-200 transition-colors">
+                        💬 Board
+                        <span class="ml-2 px-2 py-1 bg-green-500 text-white text-xs rounded-full">Axios</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a th:href="@{/axios/posts}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        📋 게시글 목록
+                    </a>
+                    <a th:href="@{/axios/posts/new}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        ✏️ 글쓰기
+                    </a>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <!-- Anonymous Menu -->
+                        <div id="anonymousMenu" class="hidden">
+                            <a th:href="@{/axios/auth/login}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                🔑 로그인
+                            </a>
+                        </div>
+
+                        <!-- Authenticated Menu -->
+                        <div id="authenticatedMenu" class="relative">
+                            <button id="userMenuButton" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
+                                👤 <span id="userGreeting" class="ml-1">사용자님</span>
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    🚪 로그아웃
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Version Switcher -->
+                    <div class="relative">
+                        <button id="versionMenuButton" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
+                            🔄 버전 변경
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="versionDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                🏠 메인 페이지
+                            </a>
+                            <a th:href="@{/fetch/posts}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                📡 Fetch 버전
+                            </a>
+                            <a th:href="@{/axios/posts}" class="block px-4 py-2 text-sm bg-blue-50 text-blue-700">
+                                🚀 Axios 버전 (현재)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobileMenuButton" class="text-white hover:text-blue-200 p-2 rounded-md">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div id="mobileMenu" class="hidden md:hidden pb-4">
+                <div class="space-y-2">
+                    <a th:href="@{/axios/posts}" class="block text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium">
+                        📋 게시글 목록
+                    </a>
+                    <a th:href="@{/axios/posts/new}" class="block text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium">
+                        ✏️ 글쓰기
+                    </a>
+                    <div id="mobileAnonymousMenu" class="hidden">
+                        <a th:href="@{/axios/auth/login}" class="block text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium">
+                            🔑 로그인
+                        </a>
+                    </div>
+                    <div id="mobileAuthenticatedMenu">
+                        <div class="px-3 py-2 text-white text-sm">
+                            👤 <span id="mobileUserGreeting">사용자님</span>
+                        </div>
+                        <button onclick="logout()" class="block w-full text-left text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium">
+                            🚪 로그아웃
+                        </button>
+                    </div>
+                    <div class="border-t border-blue-500 pt-2">
+                        <a href="/" class="block text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium">
+                            🏠 메인 페이지
+                        </a>
+                        <a th:href="@{/fetch/posts}" class="block text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium">
+                            📡 Fetch 버전
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <script>
+            // Dropdown toggles
+            document.addEventListener('DOMContentLoaded', function() {
+                const userMenuButton = document.getElementById('userMenuButton');
+                const userDropdown = document.getElementById('userDropdown');
+                const versionMenuButton = document.getElementById('versionMenuButton');
+                const versionDropdown = document.getElementById('versionDropdown');
+                const mobileMenuButton = document.getElementById('mobileMenuButton');
+                const mobileMenu = document.getElementById('mobileMenu');
+
+                // User dropdown toggle
+                if (userMenuButton) {
+                    userMenuButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        userDropdown.classList.toggle('hidden');
+                        versionDropdown.classList.add('hidden');
+                    });
+                }
+
+                // Version dropdown toggle
+                if (versionMenuButton) {
+                    versionMenuButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        versionDropdown.classList.toggle('hidden');
+                        userDropdown.classList.add('hidden');
+                    });
+                }
+
+                // Mobile menu toggle
+                if (mobileMenuButton) {
+                    mobileMenuButton.addEventListener('click', function() {
+                        mobileMenu.classList.toggle('hidden');
+                    });
+                }
+
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', function() {
+                    userDropdown.classList.add('hidden');
+                    versionDropdown.classList.add('hidden');
+                });
+            });
+        </script>
+    </header>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/axios-layout}">
+
+<head>
+    <title>게시글 상세 - Axios</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <!-- 네비게이션 -->
+            <nav class="text-sm text-gray-500 mb-6">
+                <a href="/axios/posts" class="hover:text-blue-600">게시글 목록</a>
+                <span class="mx-2">></span>
+                <span>게시글 상세</span>
+            </nav>
+
+            <!-- 게시글 상세 내용 -->
+            <div id="postDetail">
+                <!-- 로딩 상태 -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="animate-pulse">
+                        <div class="border-b pb-4 mb-4">
+                            <div class="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div class="flex space-x-4">
+                                <div class="h-4 bg-gray-200 rounded w-20"></div>
+                                <div class="h-4 bg-gray-200 rounded w-24"></div>
+                                <div class="h-4 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="h-4 bg-gray-200 rounded w-full"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                            <div class="h-4 bg-gray-200 rounded w-4/6"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼들 -->
+            <div class="mt-6 flex justify-between">
+                <!-- 목록으로 돌아가기 -->
+                <a href="/axios/posts"
+                   class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200">
+                    목록으로
+                </a>
+
+                <!-- 작성자 전용 버튼 (숨김 상태로 시작) -->
+                <div id="authorButtons" class="flex space-x-3 hidden">
+                    <a id="editBtn"
+                       href="#"
+                       class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                        수정
+                    </a>
+                    <button id="deleteBtn"
+                            type="button"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200">
+                        삭제
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script th:src="@{/js/axios/post.js}"></script>
+    </div>
+</body>
+</html>
