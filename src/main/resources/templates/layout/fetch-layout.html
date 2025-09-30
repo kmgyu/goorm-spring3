@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title layout:title-pattern="$LAYOUT_TITLE - Fetch Board">Fetch Board</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .message {
+        transition: opacity 0.3s ease-in-out;
+      }
+      .message.fade-out {
+        opacity: 0;
+      }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <!-- HEADER -->
+    <div th:replace="~{fragments/fetch-header :: header}"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1">
+        <!-- Fetch Messages Container -->
+        <div id="messageContainer" class="max-w-7xl mx-auto px-4 py-4">
+            <!-- 성공/에러 메시지가 동적으로 표시됩니다 -->
+        </div>
+
+        <div layout:fragment="content">
+            <!-- 페이지별 내용이 여기에 들어갑니다 -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- 공통 JavaScript -->
+    <script th:src="@{/js/common/ui-common.js}"></script>
+    <script th:src="@{/js/common/fetch-api.js}"></script>
+
+    <!-- 페이지별 JavaScript -->
+    <div layout:fragment="scripts">
+        <!-- 페이지별 스크립트가 여기에 들어갑니다 -->
+    </div>
+</body>
+</html>
