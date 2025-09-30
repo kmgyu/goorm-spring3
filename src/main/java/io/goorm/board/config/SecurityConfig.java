@@ -33,6 +33,7 @@ public class SecurityConfig {
                     .ignoringRequestMatchers("/api/**")  // API 경로는 CSRF 비활성화
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
                 .requestMatchers("/buyer/orders/*/invoice").hasAnyRole(UserRole.ADMIN.name(), UserRole.BUYER.name())
                 .requestMatchers("/buyer/**").hasRole(UserRole.BUYER.name())
