@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/axios-layout}">
+
+<head>
+    <title th:text="${mode == 'edit'} ? '게시글 수정 - Axios' : '게시글 작성 - Axios'">게시글 작성 - Axios</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <!-- 헤더 섹션 -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900" th:text="${mode == 'edit'} ? '게시글 수정' : '게시글 작성'">게시글 작성</h1>
+                <nav class="text-sm text-gray-500 mt-2">
+                    <a href="/axios/posts" class="hover:text-blue-600">게시글 목록</a>
+                    <span class="mx-2">></span>
+                    <span th:text="${mode == 'edit'} ? '수정' : '작성'">작성</span>
+                </nav>
+            </div>
+
+            <!-- 게시글 폼 -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <form id="postForm" method="post" class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                        <input type="text"
+                               id="title"
+                               name="title"
+                               required
+                               maxlength="200"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="게시글 제목을 입력하세요">
+                    </div>
+
+                    <div>
+                        <label for="content" class="block text-sm font-medium text-gray-700 mb-2">내용</label>
+                        <textarea id="content"
+                                  name="content"
+                                  required
+                                  rows="15"
+                                  maxlength="4000"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                  placeholder="게시글 내용을 입력하세요"></textarea>
+                        <div class="mt-1 text-sm text-gray-500">
+                            최대 4000자까지 입력 가능합니다.
+                        </div>
+                    </div>
+
+                    <!-- 버튼 그룹 -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t">
+                        <a href="/axios/posts"
+                           class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                            취소
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                            <span th:text="${mode == 'edit'} ? '수정하기' : '작성하기'">작성하기</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 작성 팁 -->
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="text-sm font-medium text-blue-800 mb-2">💡 작성 팁</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• 명확하고 구체적인 제목을 작성해주세요</li>
+                    <li>• 내용은 읽기 쉽게 문단을 나누어 작성해주세요</li>
+                    <li>• 예의를 지켜 작성해주세요</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script th:src="@{/js/axios/post.js}"></script>
+    </div>
+</body>
+</html>
