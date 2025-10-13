@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{pages/localStorage/layout}">
+
+<head>
+    <title>글쓰기 - localStorage JWT</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+
+            <!-- 페이지 헤더 -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">💾 localStorage 글쓰기</h1>
+                        <p class="text-gray-600">localStorage에 저장된 JWT 토큰으로 인증하여 글을 작성합니다</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="window.location.href='/pages/localStorage/list'"
+                                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            목록으로
+                        </button>
+                        <button id="testTokenBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            토큰 만료 테스트
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 글쓰기 폼 -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <form id="writeForm" class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                        <input type="text" id="title" name="title" required maxlength="200"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="게시글 제목을 입력하세요">
+                        <p class="mt-1 text-xs text-gray-500">최대 200자까지 입력 가능합니다.</p>
+                    </div>
+
+                    <div>
+                        <label for="content" class="block text-sm font-medium text-gray-700 mb-2">내용</label>
+                        <textarea id="content" name="content" required rows="12" maxlength="5000"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 resize-y"
+                                  placeholder="게시글 내용을 입력하세요..."></textarea>
+                        <p class="mt-1 text-xs text-gray-500">최대 5,000자까지 입력 가능합니다. 내용은 localStorage에 자동 저장됩니다.</p>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="window.location.href='/pages/localStorage/list'"
+                                class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-200">
+                            취소
+                        </button>
+                        <button type="submit" id="submitBtn"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition duration-200">
+                            게시글 작성
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- localStorage 토큰 자동 갱신 체험 -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-bold text-yellow-800 mb-3">🔄 자동 토큰 갱신 체험</h3>
+                <div class="text-sm text-yellow-700 space-y-2">
+                    <p><strong>localStorage 방식의 토큰 갱신 과정:</strong></p>
+                    <ol class="list-decimal list-inside space-y-1 ml-4">
+                        <li>localStorage에서 Access Token을 가져와 Authorization 헤더에 포함</li>
+                        <li>API 호출 시 401 에러 발생하면 자동으로 Refresh Token 사용</li>
+                        <li>새로운 토큰을 localStorage에 저장</li>
+                        <li>실패한 요청을 새 토큰으로 재시도</li>
+                    </ol>
+                    <p class="mt-3 font-medium">💡 "토큰 만료 테스트" 버튼을 눌러보세요!</p>
+                </div>
+            </div>
+
+            <!-- localStorage 특징 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h3 class="text-lg font-bold text-blue-800 mb-3">💾 localStorage 방식 특징</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
+                    <div>
+                        <h4 class="font-medium mb-2">구현 방식</h4>
+                        <ul class="space-y-1">
+                            <li>• <code>localStorage.setItem('accessToken', token)</code></li>
+                            <li>• <code>localStorage.getItem('accessToken')</code></li>
+                            <li>• Axios 인터셉터로 자동 헤더 추가</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2">보안 고려사항</h4>
+                        <ul class="space-y-1">
+                            <li>• JavaScript에서 토큰 접근 가능</li>
+                            <li>• XSS 공격 시 토큰 탈취 위험</li>
+                            <li>• 브라우저 개발자 도구로 확인 가능</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script th:src="@{/js/pages/localStorage/write.js}"></script>
+    </div>
+</body>
+</html>

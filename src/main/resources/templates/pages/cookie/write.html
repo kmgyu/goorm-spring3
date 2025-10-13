@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{pages/cookie/layout}">
+
+<head>
+    <title>글쓰기 - httpOnly Cookie JWT</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+
+            <!-- 페이지 헤더 -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">🍪 httpOnly Cookie 글쓰기</h1>
+                        <p class="text-gray-600">httpOnly Cookie에 저장된 JWT 토큰으로 인증하여 글을 작성합니다</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="window.location.href='/pages/cookie/list'"
+                                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            목록으로
+                        </button>
+                        <button id="testTokenBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition duration-200">
+                            토큰 상태 확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 글쓰기 폼 -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <form id="writeForm" class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                        <input type="text" id="title" name="title" required maxlength="200"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                               placeholder="게시글 제목을 입력하세요">
+                        <p class="mt-1 text-xs text-gray-500">최대 200자까지 입력 가능합니다.</p>
+                    </div>
+
+                    <div>
+                        <label for="content" class="block text-sm font-medium text-gray-700 mb-2">내용</label>
+                        <textarea id="content" name="content" required rows="12" maxlength="5000"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 resize-y"
+                                  placeholder="게시글 내용을 입력하세요..."></textarea>
+                        <p class="mt-1 text-xs text-gray-500">최대 5,000자까지 입력 가능합니다. httpOnly Cookie는 자동 저장되지 않습니다.</p>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="window.location.href='/pages/cookie/list'"
+                                class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-200">
+                            취소
+                        </button>
+                        <button type="submit" id="submitBtn"
+                                class="px-6 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition duration-200">
+                            게시글 작성
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- httpOnly Cookie 토큰 자동 갱신 체험 -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-bold text-yellow-800 mb-3">🔄 자동 토큰 갱신 체험</h3>
+                <div class="text-sm text-yellow-700 space-y-2">
+                    <p><strong>httpOnly Cookie 방식의 토큰 갱신 과정:</strong></p>
+                    <ol class="list-decimal list-inside space-y-1 ml-4">
+                        <li>브라우저가 자동으로 httpOnly Cookie를 요청 헤더에 포함</li>
+                        <li>API 호출 시 401 에러 발생하면 자동으로 Refresh Token Cookie 사용</li>
+                        <li>서버에서 새로운 httpOnly Cookie 설정</li>
+                        <li>실패한 요청을 새 쿠키로 재시도</li>
+                    </ol>
+                    <p class="mt-3 font-medium">💡 "토큰 상태 확인" 버튼을 눌러보세요!</p>
+                </div>
+            </div>
+
+            <!-- httpOnly Cookie 특징 -->
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-bold text-green-800 mb-3">🍪 httpOnly Cookie 방식 특징</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-green-700">
+                    <div>
+                        <h4 class="font-medium mb-2">구현 방식</h4>
+                        <ul class="space-y-1">
+                            <li>• 서버에서 <code>Set-Cookie</code> 헤더로 설정</li>
+                            <li>• <code>HttpOnly</code> 플래그로 JavaScript 접근 차단</li>
+                            <li>• 브라우저가 자동으로 쿠키 전송</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2">보안 고려사항</h4>
+                        <ul class="space-y-1">
+                            <li>• JavaScript에서 토큰 접근 불가</li>
+                            <li>• XSS 공격으로부터 안전</li>
+                            <li>• CSRF 공격에 취약할 수 있음</li>
+                            <li>• SameSite 설정으로 보안 강화 가능</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript 접근 불가 체험 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+                <h3 class="text-lg font-bold text-blue-800 mb-3">🔒 JavaScript 접근 불가 체험</h3>
+                <div class="text-sm text-blue-700 space-y-2">
+                    <p><strong>httpOnly Cookie의 보안 특성을 직접 확인해보세요:</strong></p>
+                    <ol class="list-decimal list-inside space-y-1 ml-4">
+                        <li>브라우저 개발자 도구를 열어보세요 (F12)</li>
+                        <li>Console 탭에서 <code>document.cookie</code>를 입력해보세요</li>
+                        <li>JWT 토큰이 표시되지 않는 것을 확인하세요</li>
+                        <li>Application 탭 > Cookies에서는 확인할 수 있습니다</li>
+                        <li>JavaScript로는 토큰을 읽거나 수정할 수 없습니다</li>
+                    </ol>
+                    <p class="mt-3 font-medium">💡 이것이 XSS 공격을 방어하는 핵심 메커니즘입니다!</p>
+                </div>
+            </div>
+
+            <!-- CSRF 공격 주의사항 -->
+            <div class="bg-red-50 border border-red-200 rounded-lg p-6 mt-6">
+                <h3 class="text-lg font-bold text-red-800 mb-3">⚠️ CSRF 공격 취약점</h3>
+                <div class="text-sm text-red-700 space-y-2">
+                    <p><strong>httpOnly Cookie 방식의 CSRF 취약점을 이해하세요:</strong></p>
+                    <ul class="list-disc list-inside space-y-1 ml-4">
+                        <li>브라우저가 자동으로 쿠키를 전송하기 때문에 CSRF 공격 가능</li>
+                        <li>악성 사이트에서 사용자 모르게 요청을 보낼 수 있음</li>
+                        <li>SameSite=Strict 설정으로 완화 가능</li>
+                        <li>CSRF 토큰 구현으로 추가 보안 강화 가능</li>
+                    </ul>
+                    <p class="mt-3 font-medium">💡 실제 운영에서는 반드시 CSRF 보호 메커니즘이 필요합니다!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="scripts">
+        <script th:src="@{/js/pages/cookie/write.js}"></script>
+    </div>
+</body>
+</html>

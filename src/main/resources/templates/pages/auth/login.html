@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT 토큰 저장 방식 체험</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+
+    <!-- 메시지 컨테이너 -->
+    <div id="messageContainer" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
+        <!-- 메시지가 동적으로 표시됩니다 -->
+    </div>
+
+    <div class="max-w-4xl w-full mx-auto p-6">
+        <!-- 헤더 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">🔐 JWT 토큰 저장 방식 체험</h1>
+            <p class="text-xl text-gray-600 mb-4">3가지 저장 방식의 특징을 직접 체험해보세요</p>
+            <div class="inline-flex items-center space-x-4">
+                <a href="/" class="text-blue-600 hover:text-blue-800 transition duration-200">← 홈으로 돌아가기</a>
+                <span class="text-gray-400">|</span>
+                <span class="text-sm text-gray-500">교육용 보안 체험 페이지</span>
+            </div>
+        </div>
+
+        <!-- 저장 방식 선택 카드들 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+            <!-- localStorage 카드 -->
+            <div id="localStorageCard" class="storage-card bg-white rounded-xl shadow-lg border-2 border-transparent hover:border-blue-400 cursor-pointer transition-all duration-300 transform hover:scale-105">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">💾</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-blue-600 mb-3">localStorage</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-center text-green-600">
+                            <span class="mr-2">✅</span>
+                            <span>브라우저 종료해도 유지</span>
+                        </div>
+                        <div class="flex items-center justify-center text-green-600">
+                            <span class="mr-2">✅</span>
+                            <span>구현 간단</span>
+                        </div>
+                        <div class="flex items-center justify-center text-red-600">
+                            <span class="mr-2">❌</span>
+                            <span>XSS 공격 취약</span>
+                        </div>
+                    </div>
+                    <button class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-200">
+                        localStorage 방식 체험
+                    </button>
+                </div>
+            </div>
+
+            <!-- sessionStorage 카드 -->
+            <div id="sessionStorageCard" class="storage-card bg-white rounded-xl shadow-lg border-2 border-transparent hover:border-green-400 cursor-pointer transition-all duration-300 transform hover:scale-105">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">🔄</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-green-600 mb-3">sessionStorage</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-center text-green-600">
+                            <span class="mr-2">✅</span>
+                            <span>탭 닫으면 자동 삭제</span>
+                        </div>
+                        <div class="flex items-center justify-center text-green-600">
+                            <span class="mr-2">✅</span>
+                            <span>상대적으로 안전</span>
+                        </div>
+                        <div class="flex items-center justify-center text-red-600">
+                            <span class="mr-2">❌</span>
+                            <span>XSS 공격 취약</span>
+                        </div>
+                    </div>
+                    <button class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition duration-200">
+                        sessionStorage 방식 체험
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cookie 카드 -->
+            <div id="cookieCard" class="storage-card bg-white rounded-xl shadow-lg border-2 border-transparent hover:border-orange-400 cursor-pointer transition-all duration-300 transform hover:scale-105">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">🍪</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-orange-600 mb-3">httpOnly Cookie</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-center text-green-600">
+                            <span class="mr-2">✅</span>
+                            <span>XSS 공격 차단</span>
+                        </div>
+                        <div class="flex items-center justify-center text-green-600">
+                            <span class="mr-2">✅</span>
+                            <span>서버에서 제어 가능</span>
+                        </div>
+                        <div class="flex items-center justify-center text-red-600">
+                            <span class="mr-2">❌</span>
+                            <span>CSRF 공격 취약</span>
+                        </div>
+                    </div>
+                    <button class="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition duration-200">
+                        Cookie 방식 체험
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 토큰 상태 확인 및 빠른 접근 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-center text-gray-900 mb-4">🔍 현재 토큰 상태 및 빠른 접근</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- localStorage 상태 -->
+                <div class="border border-blue-300 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-semibold text-blue-600">localStorage</h3>
+                        <span id="localStorageStatus" class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">확인 중...</span>
+                    </div>
+                    <div id="localStorageInfo" class="text-sm text-gray-600 mb-3">
+                        토큰 상태를 확인하는 중...
+                    </div>
+                    <div class="space-y-1">
+                        <a href="/pages/localStorage/list" class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white py-1.5 px-3 rounded text-sm transition duration-200">
+                            목록 페이지
+                        </a>
+                        <a href="/pages/localStorage/write" class="block w-full text-center border border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-3 rounded text-sm transition duration-200">
+                            글쓰기 페이지
+                        </a>
+                    </div>
+                </div>
+
+                <!-- sessionStorage 상태 -->
+                <div class="border border-green-300 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-semibold text-green-600">sessionStorage</h3>
+                        <span id="sessionStorageStatus" class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">확인 중...</span>
+                    </div>
+                    <div id="sessionStorageInfo" class="text-sm text-gray-600 mb-3">
+                        토큰 상태를 확인하는 중...
+                    </div>
+                    <div class="space-y-1">
+                        <a href="/pages/sessionStorage/list" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white py-1.5 px-3 rounded text-sm transition duration-200">
+                            목록 페이지
+                        </a>
+                        <a href="/pages/sessionStorage/write" class="block w-full text-center border border-green-500 text-green-500 hover:bg-green-50 py-1.5 px-3 rounded text-sm transition duration-200">
+                            글쓰기 페이지
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cookie 상태 -->
+                <div class="border border-orange-300 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-semibold text-orange-600">httpOnly Cookie</h3>
+                        <span id="cookieStatus" class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">확인 중...</span>
+                    </div>
+                    <div id="cookieInfo" class="text-sm text-gray-600 mb-3">
+                        토큰 상태를 확인하는 중...
+                    </div>
+                    <div class="space-y-1">
+                        <a href="/pages/cookie/list" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white py-1.5 px-3 rounded text-sm transition duration-200">
+                            목록 페이지
+                        </a>
+                        <a href="/pages/cookie/write" class="block w-full text-center border border-orange-500 text-orange-500 hover:bg-orange-50 py-1.5 px-3 rounded text-sm transition duration-200">
+                            글쓰기 페이지
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 로그인 폼 -->
+        <div id="loginForm" class="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto" style="display: none;">
+            <h2 class="text-2xl font-bold text-center mb-6">
+                <span id="selectedMethod"></span> 방식으로 로그인
+            </h2>
+
+            <form id="authForm">
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="이메일을 입력하세요">
+                </div>
+
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="비밀번호를 입력하세요">
+                </div>
+
+                <button type="submit" id="loginButton"
+                        class="w-full py-3 px-4 rounded-md text-white font-medium transition duration-200">
+                    로그인
+                </button>
+            </form>
+
+            <button id="backButton" class="w-full mt-4 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200">
+                다른 방식 선택
+            </button>
+
+            <!-- 테스트 계정 정보 -->
+            <div class="mt-6 p-4 bg-gray-50 rounded-md">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">테스트 계정</h3>
+                <div class="text-xs text-gray-600 space-y-1">
+                    <p><strong>관리자:</strong> admin@test.com / 1234</p>
+                    <p><strong>사용자:</strong> buyer2@lg.com / 1234</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 보안 비교 테이블 -->
+        <div class="mt-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">📊 저장 방식별 보안 비교</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-3 text-left font-medium text-gray-900">저장 방식</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-900">XSS 보안</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-900">CSRF 보안</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-900">지속성</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-900">구현 난이도</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 font-medium text-blue-600">localStorage</td>
+                            <td class="px-4 py-3 text-center text-red-600">❌ 취약</td>
+                            <td class="px-4 py-3 text-center text-green-600">✅ 안전</td>
+                            <td class="px-4 py-3 text-center">영구 보존</td>
+                            <td class="px-4 py-3 text-center text-green-600">⭐ 쉬움</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium text-green-600">sessionStorage</td>
+                            <td class="px-4 py-3 text-center text-red-600">❌ 취약</td>
+                            <td class="px-4 py-3 text-center text-green-600">✅ 안전</td>
+                            <td class="px-4 py-3 text-center">탭 종료시 삭제</td>
+                            <td class="px-4 py-3 text-center text-green-600">⭐ 쉬움</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-medium text-orange-600">httpOnly Cookie</td>
+                            <td class="px-4 py-3 text-center text-green-600">✅ 안전</td>
+                            <td class="px-4 py-3 text-center text-red-600">❌ 취약</td>
+                            <td class="px-4 py-3 text-center">서버 제어</td>
+                            <td class="px-4 py-3 text-center text-orange-600">⭐⭐⭐ 복잡</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/pages/auth/login.js"></script>
+</body>
+</html>

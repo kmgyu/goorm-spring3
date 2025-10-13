@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title layout:title-pattern="$LAYOUT_TITLE - JWT Board">JWT Board</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .message {
+        transition: opacity 0.3s ease-in-out;
+      }
+      .message.fade-out {
+        opacity: 0;
+      }
+      .storage-btn {
+        transition: all 0.3s ease;
+      }
+      .storage-btn.selected {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .token-status.valid {
+        background-color: #10b981;
+        color: white;
+      }
+      .token-status.expired {
+        background-color: #ef4444;
+        color: white;
+      }
+      .token-status.refreshing {
+        background-color: #f59e0b;
+        color: white;
+      }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <!-- JWT HEADER -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold text-gray-900">
+                        🔐 JWT Board
+                    </h1>
+                    <span class="text-sm text-gray-500 bg-blue-100 px-3 py-1 rounded-full">
+                        Token-based Authentication
+                    </span>
+                </div>
+
+                <!-- 네비게이션 및 사용자 정보 -->
+                <div id="headerNavigation" class="flex items-center space-x-4">
+                    <!-- 로그인 전 표시 -->
+                    <div id="beforeLoginNav" class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">저장방식:</span>
+                            <span id="headerStorageType" class="text-sm font-medium text-blue-600">-</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">토큰:</span>
+                            <span id="headerTokenStatus" class="text-sm px-2 py-1 rounded-full">확인중</span>
+                        </div>
+                        <a href="/pages/jwt/auth/login" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            로그인
+                        </a>
+                    </div>
+
+                    <!-- 로그인 후 표시 -->
+                    <div id="afterLoginNav" class="hidden flex items-center space-x-4">
+                        <!-- 사용자 정보 -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span id="userInitial" class="text-white text-sm font-bold">U</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span id="userName" class="text-sm font-medium text-gray-900">사용자</span>
+                                <span id="userEmail" class="text-xs text-gray-500">user@example.com</span>
+                            </div>
+                        </div>
+
+                        <!-- 저장 방식 정보 -->
+                        <div class="flex items-center space-x-2 text-xs">
+                            <span class="text-gray-500">저장:</span>
+                            <span id="headerStorageTypeAfter" class="px-2 py-1 bg-gray-100 rounded text-gray-700">-</span>
+                        </div>
+
+                        <!-- 네비게이션 링크 -->
+                        <div class="flex items-center space-x-2">
+                            <a href="/pages/jwt/list" class="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                                게시글 목록
+                            </a>
+                            <span class="text-gray-300">|</span>
+                            <a href="/pages/jwt/write" class="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                                글쓰기
+                            </a>
+                            <span class="text-gray-300">|</span>
+                            <a href="/pages/jwt/auth/tokens" class="text-sm text-purple-600 hover:text-purple-800 font-medium">
+                                토큰 관리
+                            </a>
+                        </div>
+
+                        <!-- 로그아웃 버튼 -->
+                        <button id="headerLogoutBtn" class="text-sm bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded transition duration-200">
+                            로그아웃
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1">
+        <!-- JWT Messages Container -->
+        <div id="messageContainer" class="max-w-7xl mx-auto px-4 py-4">
+            <!-- 성공/에러 메시지가 동적으로 표시됩니다 -->
+        </div>
+
+        <div layout:fragment="content">
+            <!-- 페이지별 내용이 여기에 들어갑니다 -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="text-center text-sm text-gray-500">
+                <p>&copy; 2024 JWT Board. JWT 기반 인증 체험용 게시판</p>
+                <p class="mt-1">
+                    <span class="font-medium">3가지 토큰 저장소 비교:</span>
+                    localStorage vs sessionStorage vs httpOnly Cookie
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JWT 공통 JavaScript -->
+    <script th:src="@{/js/jwt/common/token-manager.js}"></script>
+    <script th:src="@{/js/jwt/common/axios-interceptor.js}"></script>
+
+    <!-- 헤더 네비게이션 이벤트 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+            if (headerLogoutBtn) {
+                headerLogoutBtn.addEventListener('click', logoutAndUpdateHeader);
+            }
+        });
+    </script>
+
+    <!-- 페이지별 JavaScript -->
+    <div layout:fragment="scripts">
+        <!-- 페이지별 스크립트가 여기에 들어갑니다 -->
+    </div>
+</body>
+</html>

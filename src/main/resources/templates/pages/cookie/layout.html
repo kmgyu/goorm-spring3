@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$LAYOUT_TITLE - httpOnly Cookie JWT">httpOnly Cookie JWT</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .message {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .message.fade-out {
+            opacity: 0;
+        }
+        .token-status.valid {
+            background-color: #10b981;
+            color: white;
+        }
+        .token-status.expired {
+            background-color: #ef4444;
+            color: white;
+        }
+        .cookie-gradient {
+            background: linear-gradient(135deg, #10b981, #047857);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+
+    <!-- httpOnly Cookie 전용 헤더 -->
+    <header class="cookie-gradient shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-white flex items-center">
+                        🍪 httpOnly Cookie JWT
+                    </h1>
+                    <div class="bg-green-800 bg-opacity-50 px-3 py-1 rounded-full">
+                        <span class="text-green-100 text-sm font-medium">JavaScript 접근 불가</span>
+                    </div>
+                </div>
+
+                <!-- 사용자 정보 및 네비게이션 -->
+                <div id="headerNav" class="flex items-center space-x-4">
+                    <div id="userInfo" class="hidden flex items-center space-x-3 text-white">
+                        <div class="w-10 h-10 bg-green-300 rounded-full flex items-center justify-center">
+                            <span id="userInitial" class="text-green-800 font-bold">U</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span id="userName" class="text-sm font-medium">사용자</span>
+                            <span id="userEmail" class="text-xs text-green-200">user@example.com</span>
+                        </div>
+                    </div>
+
+                    <!-- 네비게이션 링크 -->
+                    <div id="navLinks" class="hidden flex items-center space-x-4 text-white">
+                        <a href="/pages/cookie/list" class="hover:text-green-200 transition duration-200">📋 목록</a>
+                        <span class="text-green-300">|</span>
+                        <a href="/pages/cookie/write" class="hover:text-green-200 transition duration-200">✏️ 글쓰기</a>
+                        <span class="text-green-300">|</span>
+                        <a href="/pages/auth/login" class="hover:text-green-200 transition duration-200">🔄 다른 방식</a>
+                        <span class="text-green-300">|</span>
+                        <a href="/" class="hover:text-green-200 transition duration-200">🏠 홈</a>
+                    </div>
+
+                    <!-- 로그아웃 버튼 -->
+                    <button id="logoutBtn" class="hidden bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition duration-200">
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+
+            <!-- 토큰 상태 표시 -->
+            <div class="mt-3 flex items-center justify-between text-white text-sm">
+                <div class="flex items-center space-x-4">
+                    <span>토큰 상태:</span>
+                    <span id="tokenStatus" class="px-3 py-1 rounded-full text-xs">확인중...</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-green-200">🔒 CSRF 공격에 취약 - XSS 공격에 안전 - 교육용 체험</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메시지 컨테이너 -->
+    <div id="messageContainer" class="max-w-7xl mx-auto px-4 py-4">
+        <!-- 메시지가 동적으로 표시됩니다 -->
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="flex-1">
+        <div layout:fragment="content">
+            <!-- 페이지별 내용이 여기에 들어갑니다 -->
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="text-center text-sm text-gray-500">
+                <p>&copy; 2024 httpOnly Cookie JWT 체험. 교육용 목적으로 제작되었습니다.</p>
+                <p class="mt-1">
+                    <strong>특징:</strong> JavaScript로 접근 불가 |
+                    <strong>보안:</strong> XSS 공격에 안전, CSRF 공격에 취약 |
+                    <strong>구현:</strong> 서버 설정 필요
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- httpOnly Cookie 공통 JavaScript -->
+    <script th:src="@{/js/pages/cookie/common.js}"></script>
+
+    <!-- 페이지별 JavaScript -->
+    <div layout:fragment="scripts">
+        <!-- 페이지별 스크립트가 여기에 들어갑니다 -->
+    </div>
+</body>
+</html>
