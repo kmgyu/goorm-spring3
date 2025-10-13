@@ -133,6 +133,7 @@ public class SecurityConfig {
 
                     // REST API 경로
                 .requestMatchers("/api/*/auth/**").permitAll()  // 모든 API 인증 엔드포인트 공개
+                .requestMatchers("/api/responseentity/auth/**").permitAll()  // ResponseEntity 인증 엔드포인트 명시적 허용
                 .requestMatchers("/api/**").authenticated()     // 나머지 API는 인증 필요
 
                 .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
