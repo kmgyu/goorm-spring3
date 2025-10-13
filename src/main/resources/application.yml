@@ -4,9 +4,9 @@ spring:
 
   # 공통 데이터소스 설정
   datasource:
-    url: jdbc:mariadb://localhost:3307/goorm_db
-    username: goorm-board
-    password: goorm1234
+    url: jdbc:mariadb://localhost:3307/goorm_board
+    username: goorm
+    password: 1234
 
   # 공통 Thymeleaf 설정
   thymeleaf:
