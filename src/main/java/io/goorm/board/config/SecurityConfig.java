@@ -1,10 +1,6 @@
 package io.goorm.board.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.goorm.board.dto.ErrorResponse;
-import io.goorm.board.enums.UserRole;
 import io.goorm.board.exception.JwtAccessDeniedHandler;
-import io.goorm.board.auth.AuthFailureHandler;
 import io.goorm.board.exception.JwtAuthenticationEntryPoint;
 import io.goorm.board.filter.JwtAuthenticationFilter;
 import io.goorm.board.service.JwtUserDetailsServiceImpl;
@@ -14,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -34,7 +29,6 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-//    private final AuthFailureHandler authFailureHandler;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
