@@ -7,6 +7,7 @@ import io.goorm.board.exception.JwtAccessDeniedHandler;
 import io.goorm.board.auth.AuthFailureHandler;
 import io.goorm.board.exception.JwtAuthenticationEntryPoint;
 import io.goorm.board.filter.JwtAuthenticationFilter;
+import io.goorm.board.service.JwtUserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -33,11 +34,12 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final AuthFailureHandler authFailureHandler;
+//    private final AuthFailureHandler authFailureHandler;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+  private final JwtUserDetailsServiceImpl jwtUserDetailsService;
 
     // Fetch 전용 SecurityFilterChain
     @Bean
@@ -120,88 +122,37 @@ public class SecurityConfig {
     }
 
 
-    @Bean
-    @Order(3)
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**")  // API 경로는 CSRF 비활성화
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
-                .requestMatchers("/buyer/orders/*/invoice").hasAnyRole(UserRole.ADMIN.name(), UserRole.BUYER.name())
-                .requestMatchers("/buyer/**").hasRole(UserRole.BUYER.name())
-
-                    // REST API 경로
-                .requestMatchers("/api/*/auth/**").permitAll()  // 모든 API 인증 엔드포인트 공개
-                .requestMatchers("/api/responseentity/auth/**").permitAll()  // ResponseEntity 인증 엔드포인트 명시적 허용
-                .requestMatchers("/api/**").authenticated()     // 나머지 API는 인증 필요
-
-                .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
-                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.*").permitAll()
-                .requestMatchers("/posts/[0-9]+", "/error/**").permitAll()
-                .requestMatchers("/posts/new", "/posts/*/edit", "/posts/*/delete").authenticated()
-                .requestMatchers("/auth/profile").authenticated()
-                .anyRequest().authenticated()
-            )
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            log.warn("Access denied for user: {} to URL: {}",
-                                    request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
-                                    request.getRequestURI());
-
-                            // REST API 경로는 JSON 응답
-                            if (request.getRequestURI().startsWith("/api/")) {
-                                response.setStatus(403);
-                                response.setContentType("application/json;charset=UTF-8");
-                                ErrorResponse errorResponse = ErrorResponse.of("ACCESS_DENIED", "접근 권한이 없습니다.", 403);
-                                response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
-                            } else {
-                                response.sendRedirect("/error/403");
-                            }
-                        })
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            log.warn("Authentication required for URL: {}", request.getRequestURI());
-
-                            // REST API 경로는 JSON 응답
-                            if (request.getRequestURI().startsWith("/api/")) {
-                                response.setStatus(401);
-                                response.setContentType("application/json;charset=UTF-8");
-                                ErrorResponse errorResponse = ErrorResponse.of("UNAUTHORIZED", "인증이 필요합니다.", 401);
-                                response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
-                            } else {
-                                response.sendRedirect("/auth/login");
-                            }
-                        })
-                )
-            .formLogin(form -> form
-                .loginPage("/auth/login")
-                .loginProcessingUrl("/auth/login")
-                .usernameParameter("email")
-                .passwordParameter("password")
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authFailureHandler)
-            )
-            .logout(logout -> logout
-                .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/")
-                .permitAll()
-            );
-
-        return http.build();
-    }
-
-  // JWT 전용 SecurityFilterChain
+  // JWT 페이지 전용 SecurityFilterChain (웹 페이지)
   @Bean
-  @org.springframework.core.annotation.Order(4)
-  public SecurityFilterChain jwtSecurityChain(HttpSecurity http) throws Exception {
+  @Order(3)
+  public SecurityFilterChain jwtPagesSecurityChain(HttpSecurity http) throws Exception {
+    return http
+            .securityMatcher("/pages/**")
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/pages/**").permitAll()     // 모든 페이지 허용 (클라이언트에서 제어)
+            )
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                      log.warn("Pages authentication required for URL: {}", request.getRequestURI());
+                      response.sendRedirect("/pages/auth/login");
+                    })
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                      log.warn("Pages access denied for user: {} to URL: {}",
+                              request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                              request.getRequestURI());
+                      response.sendRedirect("/pages/auth/login?error=access");
+                    }))
+            .build();
+  }
+
+  // JWT API 전용 SecurityFilterChain
+  @Bean
+  @Order(4)
+  public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
     return http
             .securityMatcher("/jwt/**")
             .sessionManagement(session -> session
@@ -218,6 +169,94 @@ public class SecurityConfig {
             .build();
   }
 
+  // REST API 전용 SecurityFilterChain (세션 기반)
+  @Bean
+  @Order(5)
+  public SecurityFilterChain apiSecurityChain(HttpSecurity http) throws Exception {
+    return http
+            .securityMatcher("/api/**")
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/*/auth/**").permitAll()
+                    .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                      response.setStatus(401);
+                      response.setContentType("application/json;charset=UTF-8");
+                      io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("UNAUTHORIZED", "인증이 필요합니다", 401);
+                      response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
+                    })
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                      response.setStatus(403);
+                      response.setContentType("application/json;charset=UTF-8");
+                      io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("ACCESS_DENIED", "접근 권한이 없습니다", 403);
+                      response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
+                    }))
+            .build();
+  }
+
+  // 기본 MVC SecurityFilterChain
+  @Bean
+  @Order(6)
+  public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
+    http
+            .authorizeHttpRequests(auth -> auth
+                    // 기존 MVC 경로
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/buyer/**").hasRole("BUYER")
+                    .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
+                    .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/favicon.*").permitAll()
+                    .requestMatchers("/posts/[0-9]+").permitAll()
+                    .requestMatchers("/posts/new", "/posts/*/edit", "/posts/*/delete").authenticated()
+                    .requestMatchers("/auth/profile").authenticated()
+
+
+
+                    // Swagger UI 경로
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                    .anyRequest().authenticated()
+            )
+            .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            )
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
+                    .maximumSessions(1)
+                    .maxSessionsPreventsLogin(false)
+            )
+            .exceptionHandling(ex -> ex
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                      log.warn("Access denied for user: {} to URL: {}",
+                              request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                              request.getRequestURI());
+                      response.sendRedirect("/error/403");
+                    })
+                    .authenticationEntryPoint((request, response, authException) -> {
+                      log.warn("Authentication required for URL: {}", request.getRequestURI());
+                      response.sendRedirect("/auth/login");
+                    })
+            )
+            .formLogin(form -> form
+                    .loginPage("/auth/login")
+                    .usernameParameter("email")
+                    .passwordParameter("password")
+                    .successHandler(authenticationSuccessHandler)
+                    .failureUrl("/auth/login?error=true")
+                    .permitAll()
+            )
+            .logout(logout -> logout
+                    .logoutUrl("/auth/logout")
+                    .logoutSuccessUrl("/")
+                    .permitAll()
+            );
+
+    return http.build();
+  }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -227,6 +266,9 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
+      authenticationManagerBuilder
+              .userDetailsService(jwtUserDetailsService)
+              .passwordEncoder(passwordEncoder);
         return authenticationManagerBuilder.build();
     }
 }

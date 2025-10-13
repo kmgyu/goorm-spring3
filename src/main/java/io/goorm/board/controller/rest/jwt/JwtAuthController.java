@@ -1,4 +1,4 @@
-package io.goorm.board.controller.jwt;
+package io.goorm.board.controller.rest.jwt;
 
 import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.dto.LoginDto;

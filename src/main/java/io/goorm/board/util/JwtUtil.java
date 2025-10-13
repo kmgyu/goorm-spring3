@@ -105,4 +105,11 @@ public class JwtUtil {
     public long getAccessTokenExpirationInSeconds() {
         return accessTokenExpiration / 1000;
     }
+
+    /**
+     * Refresh Token 만료 시간 반환 (초 단위)
+     */
+    public long getRefreshTokenExpirationInSeconds() {
+        return refreshTokenExpiration / 1000;
+    }
 }

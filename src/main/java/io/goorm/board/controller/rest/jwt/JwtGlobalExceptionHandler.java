@@ -1,4 +1,4 @@
-package io.goorm.board.exception;
+package io.goorm.board.controller.rest.jwt;
 
 import io.goorm.board.dto.ApiResponse;
 import io.jsonwebtoken.*;

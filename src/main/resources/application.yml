@@ -4,9 +4,9 @@ spring:
 
   # 공통 데이터소스 설정
   datasource:
-    url: jdbc:mariadb://localhost:3307/goorm_board
-    username: goorm
-    password: 1234
+    url: jdbc:mariadb://localhost:3307/goorm_db
+    username: goorm-board
+    password: goorm1234
 
   # 공통 Thymeleaf 설정
   thymeleaf:
@@ -34,11 +34,18 @@ logging:
     org.springframework.security: DEBUG
     io.goorm.board.service.UserService: DEBUG
     io.goorm.board.controller.AuthController: DEBUG
+    io.goorm.board.filter.JwtAuthenticationFilter: DEBUG
     org.springframework.security.authentication: TRACE
     org.springframework.security.web: TRACE
   charset:
     console: UTF-8
     file: UTF-8
+
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:myVeryLongSecretKeyThatIsAtLeast256BitsLong123456789}
+  access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}    # 15분 (밀리초)
+  refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7일 (밀리초)
 
 # 애플리케이션 설정
 app:
