@@ -9,7 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/pages/jwt/auth")
+@RequestMapping("/jwt/auth")
 @RequiredArgsConstructor
 public class JwtAuthViewController {
 
