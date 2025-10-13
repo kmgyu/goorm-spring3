@@ -79,6 +79,26 @@ public class GlobalExceptionHandler {
         return "auth/signup";
     }
 
+    /**
+     * InvalidCredentialsException 처리
+     * 로그인 실패 시 로그인 폼으로 리다이렉트
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public String handleInvalidCredentialsException(InvalidCredentialsException e, Model model) {
+        log.warn("Invalid credentials: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+                "error.login.invalid",
+                null,
+                LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        model.addAttribute("loginDto", new io.goorm.board.dto.LoginDto());
+
+        return "auth/login";
+    }
 
     /**
      * UserNotFoundException 처리
@@ -122,7 +142,22 @@ public class GlobalExceptionHandler {
         return "error/403";
     }
 
+    /**
+     * AuthenticationException 처리
+     * 인증 필요한 요청 시 로그인 페이지로 리다이렉트
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public String handleAuthenticationException(AuthenticationException e, HttpServletRequest request) {
+        log.warn("Authentication required: {} - {}", request.getRequestURI(), e.getMessage());
 
+        // 원래 요청 URL을 로그인 후 리다이렉트를 위해 저장
+        String redirectUrl = request.getRequestURI();
+        if (request.getQueryString() != null) {
+            redirectUrl += "?" + request.getQueryString();
+        }
+
+        return "redirect:/auth/login?redirect=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
+    }
 
     /**
      * 기타 모든 예외 처리
@@ -409,5 +444,18 @@ public class GlobalExceptionHandler {
         }
 
         return "error/500";
+    }
+
+    @ExceptionHandler(UnauthenticatedException.class)
+    public ResponseEntity<io.goorm.board.dto.ErrorResponse> handleUnauthenticatedException(UnauthenticatedException e) {
+        log.warn("User unauthenticated: {}", e.getMessage());
+
+        io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of(
+                "UNAUTHENTICATED",
+                e.getMessage(),
+                401
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 }
