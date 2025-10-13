@@ -91,7 +91,7 @@ public class JwtUtil {
     /**
      * 토큰에서 Claims 추출
      */
-    private Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
