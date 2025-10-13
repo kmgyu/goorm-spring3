@@ -87,12 +87,15 @@ async function updateUserInfo() {
             navLinks.classList.remove('hidden');
             logoutBtn.classList.remove('hidden');
         } else {
+            console.log("warning! not logined");
             // 로그인되지 않은 상태
-            redirectToLogin();
+            // redirectToLogin();
         }
     } catch (error) {
+        console.log(error)
+        console.log("warning! error detected");
         // 로그인되지 않은 상태
-        redirectToLogin();
+        // redirectToLogin();
     }
 }
 
