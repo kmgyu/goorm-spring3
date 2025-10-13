@@ -126,6 +126,12 @@ public class UserService implements UserDetailsService {
         return userRepository.findByIdWithCompany(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
     }
+
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+    }
     
     // UserDetailsService 구현 - Spring Security에서 사용
     @Override
